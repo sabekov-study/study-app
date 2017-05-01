@@ -85,4 +85,21 @@ function hideSubtreesForNegativeChoices() {
 	})
 }
 
+function installOnchangeListeners() {
+	iterateAnswers(function(answer) {
+		var label = answer.id
+		var valueElem = getValueElement(label)
+		if (!valueElem) {
+			console.warn("No value element for " + label)
+			return false
+		}
+		if (valueElem.tagName != 'SELECT') {
+			console.warn("Unhandled tag type of value element for " + label + ": " + valueElem.tagName)
+			return false
+		}
+		valueElem.setAttribute('onchange', "hideSubtreeIfChoiceIsNegative('" + label + "')")
+	})
+}
+
 hideSubtreesForNegativeChoices()
+installOnchangeListeners()
