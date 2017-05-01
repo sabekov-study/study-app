@@ -1,0 +1,36 @@
+{% load i18n %}
+{% load static %}
+<nav class="navbar navbar-default">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse"
+                aria-expanded="false">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="{% url 'index' %}"><i class="fa" aria-hidden="true"></i> SABEKOV</a>
+    </div>
+
+    <div class="collapse navbar-collapse" id="navbar-collapse">
+        <ul class="navbar-nav nav mr-auto">
+            {% if user.is_authenticated %}
+            <li{% if active_nav == 'account' %} class="active"{% endif %}>
+                <a href="{% url 'my_account' %}">{% trans 'Account' %}</a>
+            </li>
+            {% if user.is_staff %}
+            <li>
+                <a href="{% url 'admin:index' %}">{% trans 'Django admin' %}</a>
+            </li>
+            {% endif %}
+            <li>
+                <a href="{% url 'logout' %}">{% trans 'Logout' %} ({{ user.username }})</a>
+            </li>
+            {% else %}
+            <li{% if active_nav == 'login' %} class="active"{% endif %}>
+                <a href="{% url 'login' %}">{% trans 'Login' %}</a>
+            </li>
+            {% endif %}
+        </ul>
+    </div>
+</nav>

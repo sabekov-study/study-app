@@ -1,0 +1,31 @@
+{% extends "base/base.html" %}
+{% load csp %}
+{% load pipeline %}
+{% block window_title %}Test page{% endblock %}
+
+{% block content %}
+<h2>Welcome to the test page!</h2>
+<p>Example icon from Font Awesome: <span class="fa fa-user"></span></p>
+<noscript><p>JavaScript is disabled!</p></noscript>
+<p>Does jQuery work? <span id="jquery-works">no</span>!</p>
+<p>Does CSP prevent unauthorized script execution? <span id="csp-works">yes</span></p>
+{% if user.is_authenticated %}
+<p>You are logged in as {{ user }}.</p>
+{% else %}
+<p>You are not logged in.</p>
+{% endif %}
+{% endblock content %}
+
+{% block scripts %}
+<script type="text/javascript" nonce="{% csp_nonce %}">
+    $(function() {
+        $('#jquery-works').text('yes')
+    });
+</script>
+
+<script type="text/javascript">
+    $(function() {
+        $('#csp-works').text('no!').css('color', '#c00');
+    })
+</script>
+{% endblock %}

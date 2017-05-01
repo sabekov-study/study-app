@@ -1,0 +1,9 @@
+{% load survey_extras %}
+
+{% for question in questions %}
+    {% if question.reference %}
+    {% list_catalog question.reference %}
+    {% else %}
+    <li>{{ question.label }}</li>
+    {% endif %}
+{% endfor %}

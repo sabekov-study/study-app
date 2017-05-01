@@ -1,0 +1,37 @@
+{% load static %}
+{% load pipeline %}
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="icon" href="{% static 'base/img/favicon.ico' %}">
+    {% stylesheet 'sabekov' %}
+{% block styles %}{% endblock %}
+    <title>{% block window_title %}{% endblock %}</title>
+</head>
+<body>
+<div class="container">
+{% include 'base/menu.html' %}
+<noscript>
+    <p class="alert alert-danger">
+        {% trans 'Please enable JavaScript for this site.' %}
+    </p>
+</noscript>
+
+{% if messages %}
+{% for message in messages %}
+<p class="alert{% if message.tags %} {{ message.tags }}"{% endif %}>{{ message }}</p>
+{% endfor %}
+{% endif %}
+
+{% block content %}{% endblock %}
+</div>
+<footer class="footer">
+    <div class="container">
+        <span class="text-muted"><a href="{% url 'base:imprint' %}">{% trans 'Imprint' %}</a></span>
+    </div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,66 @@
+/* Sticky footer styles
+-------------------------------------------------- */
+html {
+    position: relative;
+    min-height: 100%;
+}
+body {
+    /* Margin bottom by footer height */
+    margin-bottom: 50px;
+}
+.footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    /* Set the fixed height of the footer here */
+    height: 30px;
+    line-height: 30px; /* Vertically center the text there */
+    background-color: #f5f5f5;
+    text-align: center;
+}
+
+/* Custom styles
+-------------------------------------------------- */
+nav {
+    margin-bottom:8px;
+}
+label {
+    font-weight: bold;
+}
+.tab-content {
+    margin-top:4px;
+}
+.btn {
+    transition:none;
+}
+
+/* max-width helpers oriented at the grid sizes.
+  See https://v4-alpha.getbootstrap.com/layout/grid/#grid-options
+ */
+.mw-xs {
+    max-width:400px;
+}
+.mw-sm {
+    max-width:540px;
+}
+.mw-md {
+    max-width:720px;
+}
+.mw-lg {
+    max-width:960px;
+}
+.mw-xl {
+    max-width:1140px;
+}
+
+/* misc utils */
+.hidden {
+    display:none;
+}
+
+.nobutton {
+    border:0;
+    background:transparent;
+    margin:0;
+    padding:0;
+}

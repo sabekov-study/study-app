@@ -1,0 +1,9 @@
+{% load bsform %}
+{% for field in form %}
+<div class="form-group{% bserrorclass field %}">
+    {% bslabel field %}{{ field.label }}{% endbslabel %}
+    {{ field|bsfield }}
+    {% bserrors field %}
+    {% bshelp %}{{ field.help_text }}{% endbshelp %}
+</div>
+{% endfor %}

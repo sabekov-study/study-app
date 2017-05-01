@@ -1,0 +1,23 @@
+{% extends 'base/base.html' %}
+{% load i18n %}
+
+{% block window_title %}{% trans 'My account' %}{% endblock %}
+
+{% block content %}
+{% include 'account/menu.html' with active_tab='overview' %}
+<h2>{% trans 'Overview' %}</h2>
+<table class="table table-responsive">
+    <tr>
+        <th class="border-top-0">{% trans 'Username' %}:</th>
+        <td class="border-top-0">{{ user.username }}</td>
+    </tr>
+    <tr>
+        <th>{% trans 'Name' %}:</th>
+        <td>{{ user.get_full_name }}</td>
+    </tr>
+    <tr>
+        <th>{% trans 'Affiliation' %}:</th>
+        <td>{{ user.medicalcenter.name }}</td>
+    </tr>
+</table>
+{% endblock %}

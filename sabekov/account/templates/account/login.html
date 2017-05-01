@@ -1,0 +1,49 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+{% load bsform %}
+
+{% block window_title %}{% trans 'Login' %}{% endblock %}
+
+{% block content %}
+<h2>{% trans 'Login' %}</h2>
+
+{% if form.errors %}
+<p class="alert alert-danger">
+    {% trans "Your username and password didn't match. Please try again." %}
+</p>
+{% endif %}
+
+{% if next %}
+    {% if user.is_authenticated %}
+    <p class="alert alert-warning">
+	{% trans "Your account doesn't have access to this page. To proceed, please login with an account that has access." %}
+    </p>
+    {% else %}
+    <p class="alert alert-info">
+        {% trans 'Please login to see this page.' %}
+    </p>
+    {% endif %}
+{% endif %}
+
+<form method="post" action="{% url 'login' %}">
+{% csrf_token %}
+<div class="form-group">
+    {% bslabel form.username %}{% trans 'Username:' %}{% endbslabel %}
+    {{ form.username|bsfield:"mw-xs" }}
+</div>
+<div class="form-group">
+    {% bslabel form.password %}{% trans 'Password:' %}{% endbslabel %}
+    {{ form.password|bsfield:"mw-xs" }}
+</div>
+
+<input type="hidden" name="next" value="{{ next }}" />
+<p>
+    <button class="btn btn-primary">
+        <i class="fa fa-sign-in" aria-hidden="true"></i> {% trans 'Login' context 'verb' %}
+    </button>
+</p>
+</form>
+
+<p><a href="{% url 'password_reset' %}">{% trans 'Lost password?' %}</a></p>
+
+{% endblock %}

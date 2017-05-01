@@ -1,0 +1,29 @@
+{% extends 'base/base.html' %}
+
+{% block window_title %}Evaluation of <em>{{ site.name }}</em>{% endblock %}
+
+{% block content %}
+<h2>Evaluation of <em>{{ evaluation.site.name }}</em></h2>
+
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+<form action="{% url 'evaluate' evaluation.site.id %}" method="post">
+{% csrf_token %}
+{% for ans, form in forms %}
+<div id="{{ ans.get_full_label }}" class="answer">
+    <h3>{{ ans.get_full_label }}</h3>
+    {% if ans.question.comment %}
+    <details>
+        <summary><span class="question-text">{{ ans.question.question_text }}</span></summary>
+        <p class="question-comment">{{ ans.question.comment }}</p>
+    </details>
+    {% else %}
+    <p><span class="question-text">{{ ans.question.question_text }}</span></p>
+    {% endif %}
+    {{ form.as_p }}
+</div>
+{% endfor %}
+<input type="submit" value="Save" />
+</form>
+
+{% endblock %}
