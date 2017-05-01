@@ -193,6 +193,14 @@ class AnswerForm(forms.ModelForm):
                         widget=forms.CheckboxSelectMultiple,
                 )
 
+        # add information about negative selections for JS-based collapsing
+        if ans and ans.question.answer_type == Question.ALTERNATIVES:
+            self.fields['negatives'] = forms.CharField(
+                    initial=json.dumps([o.name for o in ans.question.answer_options.filter(negativ=True)]),
+                    disabled=True,
+                    widget=forms.HiddenInput,
+            )
+
     def clean(self):
         cleaned_data=super(AnswerForm, self).clean()
         if self.instance.question.answer_type != Question.MULTINOM:
