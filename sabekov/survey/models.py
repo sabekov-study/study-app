@@ -41,12 +41,27 @@ class Question(models.Model):
         else:
             raise ValueError("No choices for this answer type.")
 
+    def has_negatives(self):
+        return self.answer_options.filter(negativ=True).count() != 0
+
+    def get_parent(self):
+        cand_label = self.label.rsplit("_", maxsplit=1)[0]
+        try:
+            cand = Question.objects.get(label=cand_label)
+            return cand
+        except Question.DoesNotExist as e:
+            return None
+
+    def is_subquestion(self):
+        return self.get_parent() != None
+
 
 class Checklist(models.Model):
     name = models.CharField(max_length=200)
     version = models.CharField(max_length=200)
     catalogs = models.ManyToManyField(Catalog, related_name="+")
     sequence = models.ManyToManyField(Catalog, related_name="checklist_sequences")
+    is_active = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
@@ -123,11 +138,11 @@ class SiteEvaluation(models.Model):
             if q.reference:
                 self.__populate_with_catalog(q.reference, path + [catalog])
             else:
-                ac = self.answers.create(
+                ac, created = self.answers.get_or_create(
                     question=q,
-                    value="",
                 )
-                ac.path = path
+                if created:
+                    ac.path = path
 
     def generate_forms(self, data=None):
         """Returns a list of AnswerChoice/AnswerForm tuples."""
@@ -142,6 +157,19 @@ class SiteEvaluation(models.Model):
         return forms
 
 
+class SiteEvaluationForm(forms.ModelForm):
+
+    class Meta:
+        model = SiteEvaluation
+        fields = ['note', 'finished']
+        widgets = {
+            'note': forms.Textarea,
+        }
+        labels = {
+            'note': 'General notes',
+        }
+
+
 class AnswerOption(models.Model):
     name = models.CharField(max_length=200)
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name="answer_options")
@@ -154,14 +182,20 @@ class AnswerChoice(models.Model):
     evaluation = models.ForeignKey(SiteEvaluation, on_delete=models.CASCADE, related_name="answers")
     path = models.ManyToManyField(Catalog, related_name="+")
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name="answers")
-    value = models.CharField(max_length=200)
+    value = models.CharField(max_length=200, default="")
     note = models.CharField(max_length=300, blank=True)
     discussion_needed = models.BooleanField(default=False)
     revision_needed = models.BooleanField(default=False)
 
+    def __make_full_label(self, tail):
+        return "_".join([c.label for c in self.path.all()] + [tail])
+
     def get_full_label(self):
-        #return self.question.label
-        return "_".join([c.label for c in self.path.all()] + [self.question.label])
+        return self.__make_full_label(self.question.label)
+
+    def get_parent_label(self):
+        qparent = self.question.get_parent()
+        return self.__make_full_label(qparent.label)
 
     def __str__(self):
         return self.get_full_label()

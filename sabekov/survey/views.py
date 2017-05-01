@@ -19,12 +19,15 @@ def evaluate(request, site_id):
     e, created = SiteEvaluation.objects.get_or_create(
         tester=request.user,
         site=Site.objects.get(pk=site_id),
-        checklist=Checklist.objects.get(pk=10), # TODO proper handling of multiple checklists
+        checklist=Checklist.objects.get(is_active=True),
     )
-    if created:
-        e.populate_answers()
+    e.populate_answers() # Note: running on existing evaluations it adds potentially new questions
 
     if request.method == 'POST':
+        eval_form = SiteEvaluationForm(request.POST, instance=e, prefix='GENERAL')
+        if eval_form.is_valid():
+            eval_form.save()
+
         forms = e.generate_forms(data=request.POST)
         for ans, form in forms:
             form.full_clean()
@@ -33,11 +36,13 @@ def evaluate(request, site_id):
             for ans, form in forms:
                 form.save()
     else:
+        eval_form = SiteEvaluationForm(instance=e, prefix='GENERAL')
         forms = e.generate_forms()
 
     template = loader.get_template('survey/evaluate.html')
     context = {
             'evaluation' : e,
+            'eval_form': eval_form,
             'forms' : forms,
     }
     return HttpResponse(template.render(context, request))

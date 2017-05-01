@@ -1,16 +1,23 @@
 {% extends 'base/base.html' %}
 
-{% block window_title %}Evaluation of <em>{{ site.name }}</em>{% endblock %}
+{% block window_title %}Evaluation {{ site.name }}{% endblock %}
+{% block title %}Evaluation of <em>{{ site.name }}</em>{% endblock %}
 
 {% block content %}
 <h2>Evaluation of <em>{{ evaluation.site.name }}</em></h2>
+
+:
 
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
 <form action="{% url 'evaluate' evaluation.site.id %}" method="post">
 {% csrf_token %}
+<div class="general-notes">
+    {{ eval_form.as_p }}
+</div>
+
 {% for ans, form in forms %}
-<div id="{{ ans.get_full_label }}" class="answer">
+<div id="{{ ans.get_full_label }}" class="answer{% if ans.question.is_subquestion %} subq child-of-{{ ans.get_parent_label }}{% endif %}">
     <h3>{{ ans.get_full_label }}</h3>
     {% if ans.question.comment %}
     <details>
