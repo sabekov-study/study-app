@@ -14,7 +14,7 @@ def index(request, checklist_id=Checklist.objects.filter(is_active=True).last().
         cl_form = ChecklistForm(request.POST)
         if cl_form.is_valid():
             checklist = cl_form.cleaned_data.get('checklist')
-            return HttpResponseRedirect(reverse('site_overview', args=[checklist.id]))
+            return HttpResponseRedirect(reverse('survey:site_overview', args=[checklist.id]))
 
     template = loader.get_template('survey/index.html')
     context = {

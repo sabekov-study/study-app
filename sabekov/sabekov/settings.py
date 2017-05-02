@@ -138,7 +138,6 @@ PIPELINE = {
                 'base/js/jquery-3.1.1.js',
                 'base/js/bootstrap-3.3.7.js',
                 'base/js/base.js',
-                'medcenter/js/patient_search.js'
             ),
             'output_filename': 'js/sabekov.js',
         },

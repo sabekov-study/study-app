@@ -5,7 +5,7 @@
 {% block content %}
 <h2>Sites Overview</h2>
 
-<form action="{% url 'site_overview' checklist.id %}" method="post">
+<form action="{% url 'survey:site_overview' checklist.id %}" method="post">
 {% csrf_token %}
 {{ cl_form.as_table }}
 <input type="submit" value="Ok" />
@@ -14,7 +14,7 @@
 {% if site_list %}
     <ul>
     {% for site in site_list %}
-    <li><a href="{% url 'evaluate' checklist.id site.id %}">{{ site.name }}</a></li>
+    <li><a href="{% url 'survey:evaluate' checklist.id site.id %}">{{ site.name }}</a></li>
     {% endfor %}
     </ul>
 {% else %}
