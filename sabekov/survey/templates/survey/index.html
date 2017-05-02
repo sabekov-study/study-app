@@ -12,11 +12,22 @@
 </form>
 
 {% if site_list %}
-    <ul>
-    {% for site in site_list %}
-    <li><a href="{% url 'survey:evaluate' checklist.id site.id %}">{{ site.name }}</a></li>
-    {% endfor %}
-    </ul>
+<table>
+ <thead>
+  <tr>
+     <th>Site</th>
+     <th>Status</th>
+  </tr>
+ </thead>
+ <tbody>
+ {% for site, evaluation in site_list %}
+  <tr>
+     <td><a href="{% url 'survey:evaluate' checklist.id site.id %}">{{ site.name }}</a></td>
+     <td>{% if evaluation and evaluation.finished %}Done{% endif %}</td>
+  </tr>
+ {% endfor %}
+ </tbody>
+</table>
 {% else %}
     <p>No sites are available.</p>
 {% endif %}

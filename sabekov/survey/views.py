@@ -16,13 +16,25 @@ def index(request, checklist_id=Checklist.objects.filter(is_active=True).last().
             checklist = cl_form.cleaned_data.get('checklist')
             return HttpResponseRedirect(reverse('survey:site_overview', args=[checklist.id]))
 
+    checklist = Checklist.objects.get(pk=checklist_id)
+    site_list = list()
+    for site in Site.objects.all():
+        try:
+            se = site.evaluations.get(
+                checklist=checklist,
+                tester=request.user,
+            )
+        except SiteEvaluation.DoesNotExist:
+            se = None
+        site_list.append((site, se))
+
     template = loader.get_template('survey/index.html')
     context = {
         'checklist': Checklist.objects.get(pk=checklist_id),
         'cl_form': ChecklistForm(
             initial={'checklist': checklist_id}
         ),
-        'site_list': Site.objects.all(),
+        'site_list': site_list,
     }
     return HttpResponse(template.render(context, request))
 
