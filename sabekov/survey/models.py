@@ -159,9 +159,15 @@ class SiteEvaluation(models.Model):
             forms.append((ans, f))
         return forms
 
+    def count_discussions(self):
+        return self.answers.filter(discussion_needed=True).count()
+
+    def count_revisions(self):
+        return self.answers.filter(revision_needed=True).count()
+
     class Meta:
         unique_together = ("checklist", "tester", "site")
-        
+
 
 
 class SiteEvaluationForm(forms.ModelForm):
@@ -189,7 +195,7 @@ class AnswerChoice(models.Model):
     evaluation = models.ForeignKey(SiteEvaluation, on_delete=models.CASCADE, related_name="answers")
     path = models.ManyToManyField(Catalog, related_name="+")
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name="answers")
-    value = models.CharField(max_length=200, default="")
+    value = models.CharField(max_length=200, default="", blank=True)
     note = models.CharField(max_length=300, blank=True)
     discussion_needed = models.BooleanField(default=False)
     revision_needed = models.BooleanField(default=False)
@@ -232,6 +238,7 @@ class AnswerForm(forms.ModelForm):
                         choices=ans.question.get_choices(),
                         label='Answer',
                         widget=forms.CheckboxSelectMultiple,
+                        required=False, # allows saving of unfinished evals
                 )
 
         # add information about negative selections for JS-based collapsing

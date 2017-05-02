@@ -16,6 +16,8 @@
  <thead>
   <tr>
      <th>Site</th>
+     <th>Open Discussions</th>
+     <th>Open Revisions</th>
      <th>Status</th>
   </tr>
  </thead>
@@ -23,6 +25,8 @@
  {% for site, evaluation in site_list %}
   <tr>
      <td><a href="{% url 'survey:evaluate' checklist.id site.id %}">{{ site.name }}</a></td>
+     <td>{% if evaluation %}{{ evaluation.count_discussions }}{% endif %}</td>
+     <td>{% if evaluation %}{{ evaluation.count_revisions }}{% endif %}</td>
      <td>{% if evaluation and evaluation.finished %}Done{% endif %}</td>
   </tr>
  {% endfor %}
