@@ -4,13 +4,18 @@
 {% block title %}Evaluation of <em>{{ site.name }}</em>{% endblock %}
 
 {% block content %}
+<nav>
+<ul>
+    <li><a href="{% url 'site_overview' evaluation.checklist.id %}">Back to overview</a></li>
+</ul>
+</nav>
 <h2>Evaluation of <em>{{ evaluation.site.name }}</em></h2>
 
 :
 
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
-<form action="{% url 'evaluate' evaluation.site.id %}" method="post">
+<form action="{% url 'evaluate' evaluation.checklist.id evaluation.site.id %}" method="post">
 {% csrf_token %}
 <div class="general-notes">
     {{ eval_form.as_p }}

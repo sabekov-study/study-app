@@ -126,7 +126,7 @@ class SiteEvaluation(models.Model):
     reviewed = models.BooleanField(default=False)
 
     def __str__(self):
-        return "Evaluation of %s by %s".format(str(self.site), str(self.tester))
+        return "Evaluation of {} by {}".format(str(self.site), str(self.tester))
 
     @transaction.atomic
     def populate_answers(self):
@@ -138,11 +138,14 @@ class SiteEvaluation(models.Model):
             if q.reference:
                 self.__populate_with_catalog(q.reference, path + [catalog])
             else:
-                ac, created = self.answers.get_or_create(
-                    question=q,
-                )
-                if created:
+                path_ids = [c.id for c in path]
+                pq = Catalog.objects.filter(id__in=path_ids)
+                if not self.answers.filter(question=q, path=pq).exists():
+                    ac = self.answers.create(
+                        question=q,
+                    )
                     ac.path = path
+                    ac.save()
 
     def generate_forms(self, data=None):
         """Returns a list of AnswerChoice/AnswerForm tuples."""

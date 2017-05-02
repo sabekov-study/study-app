@@ -1,25 +1,38 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.contrib.auth.decorators import login_required
+from django.urls import reverse
+
 
 from .models import *
+from .forms import *
 
 @login_required
-def index(request):
+def index(request, checklist_id=Checklist.objects.filter(is_active=True).last().id):
+    if request.method == 'POST':
+        cl_form = ChecklistForm(request.POST)
+        if cl_form.is_valid():
+            checklist = cl_form.cleaned_data.get('checklist')
+            return HttpResponseRedirect(reverse('site_overview', args=[checklist.id]))
+
     template = loader.get_template('survey/index.html')
     context = {
+        'checklist': Checklist.objects.get(pk=checklist_id),
+        'cl_form': ChecklistForm(
+            initial={'checklist': checklist_id}
+        ),
         'site_list': Site.objects.all(),
     }
     return HttpResponse(template.render(context, request))
 
 @login_required
-def evaluate(request, site_id):
+def evaluate(request, checklist_id, site_id):
     s = Site.objects.get(pk=site_id)
     e, created = SiteEvaluation.objects.get_or_create(
         tester=request.user,
         site=Site.objects.get(pk=site_id),
-        checklist=Checklist.objects.get(is_active=True),
+        checklist=Checklist.objects.get(pk=checklist_id),
     )
     e.populate_answers() # Note: running on existing evaluations it adds potentially new questions
 
