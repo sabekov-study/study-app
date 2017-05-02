@@ -139,7 +139,7 @@ class SiteEvaluation(models.Model):
                 self.__populate_with_catalog(q.reference, path + [catalog])
             else:
                 path_ids = [c.id for c in path]
-                pq = Catalog.objects.filter(id__in=path_ids)
+                pq = Catalog.objects.filter(id__in=path_ids) if path_ids else None
                 if not self.answers.filter(question=q, path=pq).exists():
                     ac = self.answers.create(
                         question=q,
