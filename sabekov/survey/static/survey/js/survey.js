@@ -33,7 +33,7 @@ function isSelectedAnswerNegative(label) {
 		return false
 	}
 	var negativeAnswers = JSON.parse(negativeAnswersElem.value)
-	return negativeAnswers.indexOf(choice) > -1
+	return negativeAnswers.indexOf(choice) > -1 || choice == "n.n."
 }
 
 function iterateAnswers(callback) {
