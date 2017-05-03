@@ -5,14 +5,17 @@
 {% block content %}
 <h2>Sites Overview</h2>
 
-<form action="{% url 'survey:site_overview' checklist.id %}" method="post">
+<form action="{% url 'survey:site_overview' checklist.id %}" method="post"
+    class="form-inline">
+<div class="form-group">
+{{ cl_form }}
+</div>
 {% csrf_token %}
-{{ cl_form.as_table }}
-<input type="submit" value="Ok" />
+<input type="submit" value="Ok" class=""/>
 </form>
 
 {% if site_list %}
-<table>
+<table class="table">
  <thead>
   <tr>
      <th>Site</th>

@@ -3,6 +3,10 @@ from django.contrib.auth.models import User
 from django.db import transaction
 from django import forms
 
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout, Button, Field, Div
+from crispy_forms.bootstrap import InlineCheckboxes, FormActions
+
 import json
 
 
@@ -231,12 +235,12 @@ class AnswerForm(forms.ModelForm):
             if ans.question.answer_type == Question.ALTERNATIVES:
                 self.fields['value'] = forms.ChoiceField(
                         choices=ans.question.get_choices(empty=True),
-                        label='Answer',
+                        label='',
                 )
             elif ans.question.answer_type == Question.MULTINOM:
                 self.fields['value'] = forms.MultipleChoiceField(
                         choices=ans.question.get_choices(),
-                        label='Answer',
+                        label='',
                         widget=forms.CheckboxSelectMultiple,
                         required=False, # allows saving of unfinished evals
                 )
@@ -248,6 +252,7 @@ class AnswerForm(forms.ModelForm):
                     disabled=True,
                     widget=forms.HiddenInput,
             )
+
 
     def clean(self):
         cleaned_data=super(AnswerForm, self).clean()
@@ -265,6 +270,7 @@ class AnswerForm(forms.ModelForm):
             'note': forms.Textarea,
         }
         labels = {
-            'value': 'Answer',
+            'value': '',
+            'note': 'Notes',
         }
 

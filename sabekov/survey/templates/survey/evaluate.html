@@ -1,25 +1,27 @@
 {% extends 'base/base.html' %}
 {% load static %}
+{% load widget_tweaks %}
+{% load crispy_forms_tags %}
+
 
 {% block window_title %}Evaluation {{ site.name }}{% endblock %}
 {% block title %}Evaluation of <em>{{ site.name }}</em>{% endblock %}
 
 {% block content %}
 <nav>
-<ul>
-    <li><a href="{% url 'survey:site_overview' evaluation.checklist.id %}">Back to overview</a></li>
-</ul>
+    <a href="{% url 'survey:site_overview' evaluation.checklist.id %}"
+        class="btn btn-info">Back to overview</a>
 </nav>
 <h2>Evaluation of <em>{{ evaluation.site.name }}</em></h2>
 
-:
-
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
-<form action="{% url 'survey:evaluate' evaluation.checklist.id evaluation.site.id %}" method="post">
+{% crispy filter %}
+
+<form id="eval-form" action="{% url 'survey:evaluate' evaluation.checklist.id evaluation.site.id %}" method="post">
 {% csrf_token %}
-<div class="general-notes">
-    {{ eval_form.as_p }}
+<div class="general-notes form-group">
+    {{ eval_form|crispy }}
 </div>
 
 {% for ans, form in forms %}
@@ -33,10 +35,28 @@
     {% else %}
     <p><span class="question-text">{{ ans.question.question_text }}</span></p>
     {% endif %}
-    {{ form.as_p }}
+
+    <div class="form-group">
+        {{ form.value|as_crispy_field }}
+        <a href="#{{ ans.get_full_label }}-details" data-toggle="collapse">Show notes and flags...</a>
+    </div>
+
+    <div id="{{ ans.get_full_label }}-details" class="answer-details collapse">
+        <div class="form-group">
+        <div class="checkbox-inline">
+            <label>{{ form.discussion_needed }}{{ form.discussion_needed.label }}</label>
+        </div>
+        <div class="checkbox-inline">
+            <label>{{ form.revision_needed }}{{ form.revision_needed.label }}</label>
+        </div>
+        </div>
+        {{ form.note.label_tag }}
+        {% render_field form.note class+="form-control" %}
+        {{ form.negatives }}
+    </div>
 </div>
 {% endfor %}
-<input type="submit" value="Save" />
+<input type="submit" value="Save" class="btn btn-primary"/>
 </form>
 
 {% endblock %}

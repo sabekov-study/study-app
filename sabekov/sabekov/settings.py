@@ -35,6 +35,8 @@ INSTALLED_APPS = [
     'account.apps.AccountConfig',
     'base.apps.BaseConfig',
     'pipeline',
+    'widget_tweaks',
+    'crispy_forms',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -167,3 +169,5 @@ PIPELINE = {
 }
 
 STATICFILES_STORAGE = 'pipeline.storage.PipelineCachedStorage'
+
+CRISPY_TEMPLATE_PACK = 'bootstrap3'

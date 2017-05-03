@@ -69,5 +69,6 @@ def evaluate(request, checklist_id, site_id):
             'evaluation' : e,
             'eval_form': eval_form,
             'forms' : forms,
+            'filter' : AnswerFilterForm(),
     }
     return HttpResponse(template.render(context, request))

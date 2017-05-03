@@ -1,0 +1,4 @@
+django
+django-pipeline
+django-widget-tweaks
+django-crispy-forms
