@@ -1,8 +1,8 @@
 from django import forms
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Button
-from crispy_forms.bootstrap import InlineCheckboxes, FormActions
+from crispy_forms.layout import Layout, Button, HTML
+from crispy_forms.bootstrap import InlineCheckboxes, FormActions, StrictButton
 
 
 from .models import *
@@ -21,6 +21,7 @@ class AnswerFilterForm(forms.Form):
             ("unanswered", "unanswered"),
         ),
         widget=forms.CheckboxSelectMultiple(),
+        label='',
     )
 
     def __init__(self, *args, **kwargs):
@@ -30,7 +31,7 @@ class AnswerFilterForm(forms.Form):
         self.helper.layout = Layout(
             InlineCheckboxes('filter'),
             FormActions(
-                Button('apply', 'Apply', ontrigger='applyFilter()')
+                StrictButton('Apply', onclick='applyFilter()')
             )
         )
 

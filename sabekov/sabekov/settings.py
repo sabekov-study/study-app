@@ -159,7 +159,7 @@ PIPELINE = {
                 'base/css/bootstrap-theme-3.3.7.css',
                 'base/css/font-awesome-4.7.0.css',
                 'base/css/base.css',
-                'tabsform/css/tabsform.css'
+                'survey/css/survey.css'
             ),
             'output_filename': 'css/sabekov.css'
         }
