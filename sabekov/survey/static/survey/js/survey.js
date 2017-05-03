@@ -145,14 +145,14 @@ function isRevisionNeeded(label) {
 }
 
 function filterIsActive(filter) {
-	var element = document.getElementById(idFor('FILTER', filter))
+	var element = document.getElementById('id_filter_' + filter)
 	return element ? element.checked : false
 }
 
 function isFiltered(label) {
-	return (filterIsActive('unanswered') && isUnanswered(label))
-		|| (filterIsActive('discussion_needed') && isDiscussionNeeded(label))
-		|| (filterIsActive('revision_needed') && isRevisionNeeded(label))
+	return (filterIsActive('3') && isUnanswered(label))
+		|| (filterIsActive('2') && !isDiscussionNeeded(label))
+		|| (filterIsActive('1') && !isRevisionNeeded(label))
 }
 
 function applyFilter() {

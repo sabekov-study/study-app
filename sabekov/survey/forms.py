@@ -16,8 +16,8 @@ class ChecklistForm(forms.Form):
 class AnswerFilterForm(forms.Form):
     filter = forms.ChoiceField(
         choices=(
-            ("revision", "revision"),
-            ("discussion", "discussion"),
+            ("revision_needed", "revision"),
+            ("discussion_needed", "discussion"),
             ("unanswered", "unanswered"),
         ),
         widget=forms.CheckboxSelectMultiple(),
