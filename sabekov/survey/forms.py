@@ -27,11 +27,12 @@ class AnswerFilterForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(AnswerFilterForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_class = 'form-inline'
+        self.helper.form_class = 'form-inline text-right'
         self.helper.layout = Layout(
             InlineCheckboxes('filter'),
             FormActions(
-                StrictButton('Apply', onclick='applyFilter()')
+                StrictButton('Filter', css_class='btn-xs',
+                    onclick='applyFilter()'),
             )
         )
 
