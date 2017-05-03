@@ -150,9 +150,9 @@ function filterIsActive(filter) {
 }
 
 function isFiltered(label) {
-	return (filterIsActive('3') && isUnanswered(label))
+	return (filterIsActive('1') && isUnanswered(label))
 		|| (filterIsActive('2') && !isDiscussionNeeded(label))
-		|| (filterIsActive('1') && !isRevisionNeeded(label))
+		|| (filterIsActive('3') && !isRevisionNeeded(label))
 }
 
 function applyFilter() {
