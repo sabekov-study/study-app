@@ -10,7 +10,7 @@ function getNegativeAnswersElement(label) {
 	return document.getElementById(idFor(label, 'negatives'))
 }
 
-function isSelectedAnswerNegative(label) {
+function isSubtreeInactive(label) {
 	var valueElem = getValueElement(label)
 	if (!valueElem) {
 		console.warn("No value element for " + label)
@@ -58,31 +58,33 @@ function iterateSubtreeElements(label, callback) {
 
 function showSubtree(label) {
 	iterateSubtreeElements(label, function(element) {
-		//console.log('Displaying ' + element.id)
-		element.style.display = 'block'
+		element.classList.remove('inactive')
 	})
 }
 
 function hideSubtree(label) {
 	iterateSubtreeElements(label, function(element) {
-		//console.log('Hiding ' + element.id)
-		element.style.display = 'none'
+		element.classList.add('inactive')
 	})
 }
 
-function hideSubtreeIfChoiceIsNegative(label) {
-	if (isSelectedAnswerNegative(label)) {
+function updateSubtreeVisibility(label) {
+	if (isSubtreeInactive(label)) {
 		hideSubtree(label)
 	} else {
 		showSubtree(label)
 	}
 }
 
-function hideSubtreesForNegativeChoices() {
+function hideInactiveSubtrees() {
 	iterateAnswers(function(answer) {
 		var label = answer.id
-		hideSubtreeIfChoiceIsNegative(label)
+		updateSubtreeVisibility(label)
 	})
+}
+
+function handleAnswerChanged(label) {
+	updateSubtreeVisibility(label)
 }
 
 function installOnchangeListeners() {
@@ -97,9 +99,72 @@ function installOnchangeListeners() {
 			console.warn("Unhandled tag type of value element for " + label + ": " + valueElem.tagName)
 			return false
 		}
-		valueElem.setAttribute('onchange', "hideSubtreeIfChoiceIsNegative('" + label + "')")
+		valueElem.setAttribute('onchange', "handleAnswerChanged('" + label + "')")
 	})
 }
 
-hideSubtreesForNegativeChoices()
+function isUnanswered(label) {
+	var element = getValueElement(label)
+
+	if (element.tagName == 'SELECT') {
+		return element.selectedOptions[0].value == 'n.n.'
+	}
+
+	if (element.tagName == 'INPUT') {
+		if (element.type == 'text') {
+			return element.value.trim().length == 0
+		}
+	}
+
+	// FIXME Don't figure out checkboxes based on being inside <UL>
+	if (element.tagName == 'UL') {
+		// Unordered lists contain checkboxes, see if at least one is checked
+		// and consider it as answered in that case
+		var checkboxElements = document.getElementsByName(label + '-value')
+		for (var i = 0; i < checkboxElements.length && !isAtLeastOneChecked; i++) {
+			if (checkboxElements[i].checked) {
+				return false
+			}
+		}
+		// No element is checked
+		return true
+	}
+
+	// If the element is unknown, don't filter it
+	return true
+}
+
+function isDiscussionNeeded(label) {
+	var element = document.getElementById(idFor(label, 'discussion_needed'))
+	return element ? element.checked : false
+}
+
+function isRevisionNeeded(label) {
+	var element = document.getElementById(idFor(label, 'revision_needed'))
+	return element ? element.checked : false
+}
+
+function filterIsActive(filter) {
+	var element = document.getElementById(idFor('FILTER', filter))
+	return element ? element.checked : false
+}
+
+function isFiltered(label) {
+	return (filterIsActive('unanswered') && isUnanswered(label))
+		|| (filterIsActive('discussion_needed') && isDiscussionNeeded(label))
+		|| (filterIsActive('revision_needed') && isRevisionNeeded(label))
+}
+
+function applyFilter() {
+	iterateAnswers(function(element) {
+		var label = element.id
+		if (isFiltered(label)) {
+			element.classList.add('filtered')
+		} else {
+			element.classList.remove('filtered')
+		}
+	})
+}
+
+hideInactiveSubtrees()
 installOnchangeListeners()
