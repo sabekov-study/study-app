@@ -11,12 +11,77 @@ import json
 
 
 
+class Checklist(models.Model):
+    name = models.SlugField(max_length=200, unique=True)
+    version = models.CharField(max_length=200, blank=True)
+    is_active = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.name
+
+    def get_sequence(self):
+        return self.catalogs.filter(is_top_level=True)
+
+    @staticmethod
+    @transaction.atomic
+    def import_from_json(path):
+        import json
+        with open(path, "r") as f:
+            obj = json.load(f)
+            cl = Checklist.objects.create(
+                    name=obj.get("name", "imported"),
+                    version=obj.get("version"),
+                )
+            # add top-level cats first to achieve proper ordering
+            top_cats = obj.get("steps")
+            for cn in top_cats:
+                cl.catalogs.create(label=cn, is_top_level=True)
+            # add remaining cats
+            for cn in obj.get("subcategories"):
+                if cn in top_cats:
+                    continue # already added before
+                cl.catalogs.create(label=cn)
+            # add questions
+            for cn in obj.get("subcategories"):
+                ql = obj.get("subcategories").get(cn)
+                for qd in ql:
+                    q = Question.objects.create(
+                            label=qd.get("label"),
+                            question_text=qd.get("question") if qd.get("question") else "",
+                            catalog=Catalog.objects.get(label=cn)
+                        )
+                    if qd.get("reference"):
+                        q.reference = Catalog.objects.get(label=qd.get("reference"))
+                    if qd.get("answer_type") == "selection":
+                        q.answer_type = Question.ALTERNATIVES
+                    elif qd.get("answer_type") == "multiselection":
+                        q.answer_type = Question.MULTINOM
+                    elif qd.get("answer_type") == "input":
+                        q.answer_type = Question.INPUT
+                    else:
+                        q.answer_type = ""
+                    ansl = qd.get("answers") if qd.get("answers") else []
+                    for ans in ansl:
+                        q.answer_options.create(
+                            name=ans,
+                            negativ=(ans.startswith("_") and ans.endswith("_")),
+                        )
+                    q.save()
+            cl.save()
+
+
 class Catalog(models.Model):
-    label = models.SlugField(max_length=30, unique=True)
+    label = models.SlugField(max_length=30)
     name = models.CharField(max_length=200, blank=True)
+    checklist = models.ForeignKey(Checklist, on_delete=models.CASCADE, related_name="catalogs")
+    is_top_level = models.BooleanField(default=False)
 
     def __str__(self):
         return self.label
+
+    class Meta:
+        order_with_respect_to = 'checklist'
+        unique_together = ('checklist', 'label')
 
 
 class Question(models.Model):
@@ -60,60 +125,6 @@ class Question(models.Model):
         return self.get_parent() != None
 
 
-class Checklist(models.Model):
-    name = models.SlugField(max_length=200, unique=True)
-    version = models.CharField(max_length=200, blank=True)
-    catalogs = models.ManyToManyField(Catalog, related_name="+")
-    sequence = models.ManyToManyField(Catalog, related_name="checklist_sequences")
-    is_active = models.BooleanField(default=False)
-
-    def __str__(self):
-        return self.name
-
-    @staticmethod
-    @transaction.atomic
-    def import_from_json(path):
-        import json
-        with open(path, "r") as f:
-            obj = json.load(f)
-            cl = Checklist.objects.create(
-                    name=obj.get("name", "n.n."),
-                    version=obj.get("version"),
-                )
-            for cn in obj.get("subcategories"):
-                c = Catalog.objects.create(label=cn)
-                c.save()
-                cl.catalogs.add(c)
-            for step in obj.get("steps"):
-                cl.sequence.add(Catalog.objects.get(label=step))
-            for cn in obj.get("subcategories"):
-                ql = obj.get("subcategories").get(cn)
-                for qd in ql:
-                    q = Question.objects.create(
-                            label=qd.get("label"),
-                            question_text=qd.get("question") if qd.get("question") else "",
-                            catalog=Catalog.objects.get(label=cn)
-                        )
-                    if qd.get("reference"):
-                        q.reference = Catalog.objects.get(label=qd.get("reference"))
-                    if qd.get("answer_type") == "selection":
-                        q.answer_type = Question.ALTERNATIVES
-                    elif qd.get("answer_type") == "multiselection":
-                        q.answer_type = Question.MULTINOM
-                    elif qd.get("answer_type") == "input":
-                        q.answer_type = Question.INPUT
-                    else:
-                        q.answer_type = ""
-                    ansl = qd.get("answers") if qd.get("answers") else []
-                    for ans in ansl:
-                        q.answer_options.create(
-                            name=ans,
-                            negativ=(ans.startswith("_") and ans.endswith("_")),
-                        )
-                    q.save()
-            cl.save()
-
-
 
 class Site(models.Model):
     name = models.SlugField(max_length=200, unique=True)
@@ -134,7 +145,7 @@ class SiteEvaluation(models.Model):
 
     @transaction.atomic
     def populate_answers(self):
-        for catalog in self.checklist.sequence.all():
+        for catalog in self.checklist.get_sequence():
             self.__populate_with_catalog(catalog)
 
     def __populate_with_catalog(self, catalog, path=[]):
