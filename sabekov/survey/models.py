@@ -10,7 +10,6 @@ from crispy_forms.bootstrap import InlineCheckboxes, FormActions
 import json
 
 
-
 class Checklist(models.Model):
     name = models.SlugField(max_length=200, unique=True)
     version = models.CharField(max_length=200, blank=True)
@@ -31,6 +30,7 @@ class Checklist(models.Model):
             cl = Checklist.objects.create(
                     name=obj.get("name", "imported"),
                     version=obj.get("version"),
+                    is_active=True,
                 )
             # add top-level cats first to achieve proper ordering
             top_cats = obj.get("steps")
@@ -113,18 +113,6 @@ class Question(models.Model):
     def has_negatives(self):
         return self.answer_options.filter(negativ=True).count() != 0
 
-    def get_parent(self):
-        cand_label = self.label.rsplit("_", maxsplit=1)[0]
-        try:
-            cand = Question.objects.get(label=cand_label)
-            return cand
-        except Question.DoesNotExist as e:
-            return None
-
-    def is_subquestion(self):
-        return self.get_parent() != None
-
-
 
 class Site(models.Model):
     name = models.SlugField(max_length=200, unique=True)
@@ -148,19 +136,32 @@ class SiteEvaluation(models.Model):
         for catalog in self.checklist.get_sequence():
             self.__populate_with_catalog(catalog)
 
-    def __populate_with_catalog(self, catalog, path=[]):
+    def __populate_with_catalog(self, catalog, prefixes=[]):
         for q in catalog.questions.all():
             if q.reference:
-                self.__populate_with_catalog(q.reference, path + [catalog])
+                prefix = q.label.rsplit('_' + q.reference.label, maxsplit=1)[0]
+                self.__populate_with_catalog(q.reference, prefixes + [prefix])
             else:
-                path_ids = [c.id for c in path]
-                pq = Catalog.objects.filter(id__in=path_ids) if path_ids else None
-                if not self.answers.filter(question=q, path=pq).exists():
+                full_label = "_".join(prefixes + [q.label])
+                if not self.answers.filter(full_label=full_label).exists():
                     ac = self.answers.create(
+                        full_label=full_label,
                         question=q,
+                        parent=self.__get_parent(full_label),
                     )
-                    ac.path = path
-                    ac.save()
+
+    def __get_parent(self, label):
+        while label != "":
+            cand_label = label.rsplit("_", maxsplit=1)[0]
+            try:
+                parent = self.answers.get(full_label=cand_label)
+                return parent
+            except AnswerChoice.DoesNotExist as e:
+                if label == cand_label:
+                    label = ""
+                else:
+                    label = cand_label
+        return None
 
     def generate_forms(self, data=None):
         """Returns a list of AnswerChoice/AnswerForm tuples."""
@@ -184,7 +185,6 @@ class SiteEvaluation(models.Model):
         unique_together = ("checklist", "tester", "site")
 
 
-
 class SiteEvaluationForm(forms.ModelForm):
 
     class Meta:
@@ -206,27 +206,30 @@ class AnswerOption(models.Model):
     class Meta:
         order_with_respect_to = 'question'
 
+
 class AnswerChoice(models.Model):
     evaluation = models.ForeignKey(SiteEvaluation, on_delete=models.CASCADE, related_name="answers")
-    path = models.ManyToManyField(Catalog, related_name="+")
+    full_label = models.SlugField(max_length=100)
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name="answers")
+    parent = models.ForeignKey('self', on_delete=models.CASCADE,
+            related_name="children", blank=True, null=True)
     value = models.CharField(max_length=200, default="", blank=True)
     note = models.CharField(max_length=300, blank=True)
     discussion_needed = models.BooleanField(default=False)
     revision_needed = models.BooleanField(default=False)
 
-    def __make_full_label(self, tail):
-        return "_".join([c.label for c in self.path.all()] + [tail])
-
     def get_full_label(self):
-        return self.__make_full_label(self.question.label)
+        return self.full_label
 
     def get_parent_label(self):
-        qparent = self.question.get_parent()
-        return self.__make_full_label(qparent.label)
+        return self.parent.get_full_label() if self.parent else ""
 
     def __str__(self):
         return self.get_full_label()
+
+    class Meta:
+        unique_together = ('evaluation', 'full_label')
+
 
 class AnswerForm(forms.ModelForm):
 
