@@ -9,7 +9,7 @@ from .models import *
 from .forms import *
 
 @login_required
-def index(request, checklist_id=Checklist.objects.filter(is_active=True).last().id):
+def index(request, checklist_id):
     if request.method == 'POST':
         cl_form = ChecklistForm(request.POST)
         if cl_form.is_valid():
