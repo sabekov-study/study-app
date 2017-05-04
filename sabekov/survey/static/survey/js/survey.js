@@ -106,6 +106,22 @@ function installOnchangeListeners() {
 function isUnanswered(label) {
 	var element = getValueElement(label)
 
+	if (!element) {
+		// No specific element by that ID, see if we have multiple values, i.e.,
+		// checkboxes
+
+		var groupedElements = document.getElementsByName(label + '-value')
+		for (var i = 0; i < groupedElements.length; i++) {
+			var currentElement = groupedElements[i]
+			if (currentElement.tagName == 'INPUT' && currentElement.type == 'checkbox' && currentElement.checked) {
+				return false
+			}
+		}
+
+		// If no answer within a group is given, exclude it from filtering
+		return true
+	}
+
 	if (element.tagName == 'SELECT') {
 		return element.selectedOptions[0].value == 'n.n.'
 	}
@@ -116,21 +132,7 @@ function isUnanswered(label) {
 		}
 	}
 
-	// FIXME Don't figure out checkboxes based on being inside <UL>
-	if (element.tagName == 'UL') {
-		// Unordered lists contain checkboxes, see if at least one is checked
-		// and consider it as answered in that case
-		var checkboxElements = document.getElementsByName(label + '-value')
-		for (var i = 0; i < checkboxElements.length && !isAtLeastOneChecked; i++) {
-			if (checkboxElements[i].checked) {
-				return false
-			}
-		}
-		// No element is checked
-		return true
-	}
-
-	// If the element is unknown, don't filter it
+	// If the element is unknown, exclude it from filtering
 	return true
 }
 
@@ -150,7 +152,7 @@ function filterIsActive(filter) {
 }
 
 function isFiltered(label) {
-	return (filterIsActive('1') && isUnanswered(label))
+	return (filterIsActive('1') && !isUnanswered(label))
 		|| (filterIsActive('2') && !isDiscussionNeeded(label))
 		|| (filterIsActive('3') && !isRevisionNeeded(label))
 }
