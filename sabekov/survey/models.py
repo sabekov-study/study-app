@@ -62,9 +62,10 @@ class Checklist(models.Model):
                         q.answer_type = ""
                     ansl = qd.get("answers") if qd.get("answers") else []
                     for ans in ansl:
+                        negative = (ans.startswith("_") and ans.endswith("_"))
                         q.answer_options.create(
-                            name=ans,
-                            negativ=(ans.startswith("_") and ans.endswith("_")),
+                            name=ans if not negative else ans[1:-1],
+                            negativ=negative,
                         )
                     q.save()
             cl.save()
