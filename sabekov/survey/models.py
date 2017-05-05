@@ -121,6 +121,10 @@ class Site(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        ordering = ['name']
+
+
 class SiteEvaluation(models.Model):
     checklist = models.ForeignKey(Checklist, on_delete=models.CASCADE, related_name="evaluations")
     tester = models.ForeignKey(User, on_delete=models.CASCADE, related_name="evaluations")
