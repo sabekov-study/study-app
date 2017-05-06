@@ -1,4 +1,5 @@
 from django.contrib import admin
+from simple_history.admin import SimpleHistoryAdmin
 
 from .models import Question, AnswerOption, Catalog, Checklist, Site
 
@@ -13,7 +14,7 @@ class CatalogInline(admin.TabularInline):
     model = Catalog
     fk_name = "checklist"
 
-class QuestionAdmin(admin.ModelAdmin):
+class QuestionAdmin(SimpleHistoryAdmin):
     inlines = [
         AnswerOptionInline,
     ]
