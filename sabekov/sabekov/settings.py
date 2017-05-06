@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'pipeline',
     'widget_tweaks',
     'crispy_forms',
+    'simple_history',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

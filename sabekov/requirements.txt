@@ -2,3 +2,4 @@ django
 django-pipeline
 django-widget-tweaks
 django-crispy-forms
+django-simple-history

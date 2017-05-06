@@ -7,6 +7,8 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Button, Field, Div
 from crispy_forms.bootstrap import InlineCheckboxes, FormActions
 
+from simple_history.models import HistoricalRecords
+
 import json
 
 
@@ -100,6 +102,7 @@ class Question(models.Model):
     answer_type = models.CharField(max_length=2, choices=ANSWER_TYPES, default=ALTERNATIVES, blank=True)
     catalog = models.ForeignKey(Catalog, on_delete=models.CASCADE, related_name="questions")
     reference = models.ForeignKey(Catalog, on_delete=models.CASCADE, related_name="references", blank=True, null=True)
+    history = HistoricalRecords()
 
     def __str__(self):
         return self.label
@@ -113,6 +116,11 @@ class Question(models.Model):
 
     def has_negatives(self):
         return self.answer_options.filter(negativ=True).count() != 0
+
+    def save(self, *args, **kwargs):
+        super(Question, self).save(*args, **kwargs)
+        # flag all answers as revision needed, since the question changed
+        self.answers.update(revision_needed=True)
 
 
 class Site(models.Model):
@@ -207,6 +215,7 @@ class AnswerOption(models.Model):
     name = models.CharField(max_length=200)
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name="answer_options")
     negativ = models.BooleanField(default=False)
+    history = HistoricalRecords()
 
     class Meta:
         order_with_respect_to = 'question'
@@ -222,6 +231,8 @@ class AnswerChoice(models.Model):
     note = models.CharField(max_length=300, blank=True)
     discussion_needed = models.BooleanField(default=False)
     revision_needed = models.BooleanField(default=False)
+    last_updated = models.DateTimeField(auto_now=True)
+    history = HistoricalRecords()
 
     def get_full_label(self):
         return self.full_label
