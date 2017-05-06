@@ -240,6 +240,13 @@ class AnswerChoice(models.Model):
     def get_parent_label(self):
         return self.parent.get_full_label() if self.parent else ""
 
+    def is_outdated(self):
+        """Checks if the question changed since this answer has been given."""
+        return self.last_updated < self.question.history.latest('history_date').history_date
+
+    def get_question_as_answered(self):
+        return self.question.history.as_of(self.last_updated).pk
+
     def __str__(self):
         return self.get_full_label()
 
@@ -282,6 +289,7 @@ class AnswerForm(forms.ModelForm):
                     disabled=True,
                     widget=forms.HiddenInput,
             )
+            self.fields['negatives'].has_changed = lambda x, y: False
 
 
     def clean(self):

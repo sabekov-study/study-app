@@ -26,7 +26,10 @@
 
 {% for ans, form in forms %}
 <div id="{{ ans.get_full_label }}" class="answer{% if ans.parent %} subq child-of-{{ ans.get_parent_label }}{% endif %}">
-    <h3>{{ ans.get_full_label }}</h3>
+    <h3>
+        {{ ans.get_full_label }}
+        {% if ans.is_outdated %}<span class="label label-warning">Changed</span>{% endif %}
+    </h3>
     {% if ans.question.comment %}
     <details>
         <summary><span class="question-text">{{ ans.question.question_text }}</span></summary>

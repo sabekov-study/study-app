@@ -50,7 +50,7 @@ def evaluate(request, checklist_id, site_id):
 
     if request.method == 'POST':
         eval_form = SiteEvaluationForm(request.POST, instance=e, prefix='GENERAL')
-        if eval_form.is_valid():
+        if eval_form.is_valid() and eval_form.has_changed():
             eval_form.save()
 
         forms = e.generate_forms(data=request.POST)
@@ -59,7 +59,8 @@ def evaluate(request, checklist_id, site_id):
         valid = all([ form.is_valid() for _, form in forms ])
         if valid:
             for ans, form in forms:
-                form.save()
+                if form.has_changed():
+                    form.save()
     else:
         eval_form = SiteEvaluationForm(instance=e, prefix='GENERAL')
         forms = e.generate_forms()
