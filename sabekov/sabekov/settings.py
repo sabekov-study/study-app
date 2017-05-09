@@ -25,7 +25,9 @@ SECRET_KEY = '==0_6w7a5tp)kn4(o3-+^)4c@a9#rr%&zs3krel#a0f!k(v983'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'svs-sabekov.informatik.uni-hamburg.de',
+]
 
 
 # Application definition
