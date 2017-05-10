@@ -97,7 +97,7 @@ class Question(models.Model):
         (INPUT, "Input"),
     )
     label = models.SlugField(max_length=30, unique=True)
-    question_text = models.CharField(max_length=200, blank=True)
+    question_text = models.CharField(max_length=300, blank=True)
     comment = models.CharField(max_length=300, blank=True)
     answer_type = models.CharField(max_length=2, choices=ANSWER_TYPES, default=ALTERNATIVES, blank=True)
     catalog = models.ForeignKey(Catalog, on_delete=models.CASCADE, related_name="questions")
