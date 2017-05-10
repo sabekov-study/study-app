@@ -132,6 +132,14 @@ class Site(models.Model):
     class Meta:
         ordering = ['name']
 
+    @staticmethod
+    @transaction.atomic
+    def import_from_file(path):
+        with open(path, "r") as f:
+            for l in f.readlines():
+                sn = l.strip().lower()
+                Site.objects.get_or_create(name=sn)
+
 
 class SiteEvaluation(models.Model):
     checklist = models.ForeignKey(Checklist, on_delete=models.CASCADE, related_name="evaluations")
