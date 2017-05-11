@@ -122,6 +122,9 @@ class Question(models.Model):
         # flag all answers as revision needed, since the question changed
         self.answers.update(revision_needed=True)
 
+    class Meta:
+        order_with_respect_to = 'catalog'
+
 
 class Site(models.Model):
     name = models.CharField(max_length=200, unique=True)
@@ -187,7 +190,7 @@ class SiteEvaluation(models.Model):
     def generate_forms(self, data=None):
         """Returns a list of AnswerChoice/AnswerForm tuples."""
         forms = list()
-        for ans in self.answers.all():
+        for ans in self.answers.order_by('pk'):
             f = AnswerForm(
                     data,
                     instance=ans,
