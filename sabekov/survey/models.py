@@ -212,7 +212,7 @@ class SiteEvaluationForm(forms.ModelForm):
         model = SiteEvaluation
         fields = ['note', 'finished']
         widgets = {
-            'note': forms.Textarea,
+                'note': forms.Textarea(attrs={'rows': '5'}),
         }
         labels = {
             'note': 'General notes',
@@ -313,7 +313,7 @@ class AnswerForm(forms.ModelForm):
         model = AnswerChoice
         fields = ['value', 'note', 'discussion_needed', 'revision_needed']
         widgets = {
-            'note': forms.Textarea,
+                'note': forms.Textarea(attrs={'rows': '5'}),
         }
         labels = {
             'value': '',
