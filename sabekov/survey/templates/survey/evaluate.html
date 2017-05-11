@@ -4,15 +4,15 @@
 {% load crispy_forms_tags %}
 
 
-{% block window_title %}Evaluation {{ site.name }}{% endblock %}
-{% block title %}Evaluation of <em>{{ site.name }}</em>{% endblock %}
+{% block window_title %}Evaluation {{ evaluation.site.name }}{% endblock %}
+{% block title %}Evaluation of {{ evaluation.site.name }}{% endblock %}
 
 {% block content %}
 <nav>
     <a href="{% url 'survey:site_overview' evaluation.checklist.id %}"
         class="btn btn-info">Back to overview</a>
 </nav>
-<h2>Evaluation of <em>{{ evaluation.site.name }}</em></h2>
+<h2>Evaluation of <a href="https://{{ evaluation.site.name }}" class="eval-site-name">{{ evaluation.site.name }}</a></h2>
 
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
