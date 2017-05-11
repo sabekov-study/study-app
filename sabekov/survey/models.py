@@ -234,7 +234,7 @@ class AnswerOption(models.Model):
 
 class AnswerChoice(models.Model):
     evaluation = models.ForeignKey(SiteEvaluation, on_delete=models.CASCADE, related_name="answers")
-    full_label = models.SlugField(max_length=100)
+    full_label = models.SlugField(max_length=100, db_index=True)
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name="answers")
     parent = models.ForeignKey('self', on_delete=models.CASCADE,
             related_name="children", blank=True, null=True)
