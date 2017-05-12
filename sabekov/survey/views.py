@@ -93,6 +93,15 @@ class SummaryListView(PermissionRequiredMixin, ListView):
         context['checklist'] = self.checklist
         return context
 
+
+class SummaryByUserListView(SummaryListView):
+    template_name = 'survey/summary-by-user.html'
+
+    def get_queryset(self):
+        self.checklist = get_object_or_404(Checklist, pk=self.kwargs['checklist_id'])
+        return self.checklist.evaluations.order_by('tester__username', 'site')
+
+
 class ReviewDetailView(PermissionRequiredMixin, DetailView):
     permission_required = 'survey.can_review'
     model = SiteEvaluation

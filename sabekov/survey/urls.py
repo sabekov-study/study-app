@@ -11,5 +11,7 @@ urlpatterns = [
     url(r'^(?P<checklist_id>[0-9]+)/$', views.index, name='site_overview'),
     url(r'^(?P<checklist_id>[0-9]+)/(?P<site_id>[0-9]+)/$', views.evaluate, name='evaluate'),
     url(r'^(?P<checklist_id>[0-9]+)/summary/$', views.SummaryListView.as_view(), name='summary-list'),
+    url(r'^(?P<checklist_id>[0-9]+)/summary-by-user/$',
+        views.SummaryByUserListView.as_view(), name='summary-by-user-list'),
     url(r'^review/(?P<eval_id>[0-9]+)/$', views.ReviewDetailView.as_view(), name='review'),
 ]
