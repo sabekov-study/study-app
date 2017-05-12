@@ -1,0 +1,51 @@
+{% extends 'base/base.html' %}
+
+{% block window_title %}Summary{% endblock %}
+
+{% block content %}
+<div class="container">
+<h2>Compare {{ site.name }}</h2>
+
+{% regroup answers by full_label as label_list %}
+
+<div class="panel-group">
+ {% for label in label_list %}
+  <div class="panel panel-default">
+      <div class="panel-heading">{{ label.grouper }}</div>
+    <table class="table">
+     <thead>
+      <tr>
+         <th>Answer</th>
+         <th>Tester</th>
+         <th>Flags</th>
+      </tr>
+     </thead>
+     <tbody>
+     {% for ans in label.list %}
+      <tr>
+          <td>{{ ans.value }}</td>
+          <td>{{ ans.evaluation.tester }}</td>
+          <td>
+         {% if eval.note %}
+         &nbsp;<span class="label label-info" data-toggle="popover" title="Notes"
+             data-content="{{ eval.note }}" styles="z-index: 500;">Notes</span>
+            {# FIXME: Catch click on Notes to avoid loading review site #}
+         {% endif %}
+        </td>
+      </tr>
+     {% endfor %}
+     </tbody>
+    </table>
+    </div>
+ {% endfor %}
+</div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+$(document).ready(function(){
+    $('[data-toggle="popover"]').popover(); 
+});
+</script>
+{% endblock %}

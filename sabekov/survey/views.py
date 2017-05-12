@@ -102,6 +102,26 @@ class SummaryByUserListView(SummaryListView):
         return self.checklist.evaluations.order_by('tester__username', 'site')
 
 
+class CompareListView(PermissionRequiredMixin, ListView):
+    permission_required = 'survey.can_review'
+    model = AnswerChoice
+    template_name = 'survey/compare.html'
+    context_object_name = 'answers'
+
+    def get_queryset(self):
+        self.checklist = get_object_or_404(Checklist, pk=self.kwargs['checklist_id'])
+        self.site = get_object_or_404(Site, pk=self.kwargs['site_id'])
+        return AnswerChoice.objects.filter(evaluation__checklist=self.checklist,
+            evaluation__site=self.site).order_by('full_label',
+            'evaluation__tester__username')
+
+    def get_context_data(self, **kwargs):
+        context = super(CompareListView, self).get_context_data(**kwargs)
+        context['checklist'] = self.checklist
+        context['site'] = self.site
+        return context
+
+
 class ReviewDetailView(PermissionRequiredMixin, DetailView):
     permission_required = 'survey.can_review'
     model = SiteEvaluation
