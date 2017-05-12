@@ -1,8 +1,11 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.urls import reverse
+from django.views.generic.list import ListView
+from django.views.generic.detail import DetailView
 
 
 from .models import *
@@ -73,3 +76,26 @@ def evaluate(request, checklist_id, site_id):
             'filter' : AnswerFilterForm(),
     }
     return HttpResponse(template.render(context, request))
+
+
+class SummaryListView(PermissionRequiredMixin, ListView):
+    permission_required = 'survey.can_review'
+    model = SiteEvaluation
+    template_name = 'survey/summary.html'
+    context_object_name = 'evaluations'
+
+    def get_queryset(self):
+        self.checklist = get_object_or_404(Checklist, pk=self.kwargs['checklist_id'])
+        return self.checklist.evaluations.order_by('site', 'tester__username')
+
+    def get_context_data(self, **kwargs):
+        context = super(SummaryListView, self).get_context_data(**kwargs)
+        context['checklist'] = self.checklist
+        return context
+
+class ReviewDetailView(PermissionRequiredMixin, DetailView):
+    permission_required = 'survey.can_review'
+    model = SiteEvaluation
+    pk_url_kwarg = 'eval_id'
+    template_name = 'survey/review.html'
+    context_object_name = 'eval'

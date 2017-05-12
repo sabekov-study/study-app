@@ -3,6 +3,14 @@
 {% block window_title %}Sites Overview{% endblock %}
 
 {% block content %}
+<div class="container">
+{% if perms.survey.can_review %}
+<ul class="nav nav-pills">
+  <li class="active"><a href="{% url 'survey:site_overview' checklist.id %}">Overview</a></li>
+  <li><a href="{% url 'survey:summary-list' checklist.id %}">Summary</a></li>
+</ul>
+{% endif %}
+
 <h2>Sites Overview</h2>
 
 <form action="{% url 'survey:site_overview' checklist.id %}" method="post"
@@ -36,6 +44,7 @@
  </tbody>
 </table>
 {% else %}
-    <p>No sites are available.</p>
+<div class="alert alert-info">No sites are available.</div>
 {% endif %}
+</div>
 {% endblock %}

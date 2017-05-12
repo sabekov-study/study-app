@@ -1,0 +1,47 @@
+{% extends 'base/base.html' %}
+
+{% block window_title %}Review of {{ eval.site.name }}{% endblock %}
+
+{% block content %}
+<div class="container">
+<nav>
+    <a href="{% url 'survey:summary-list' eval.checklist.id %}"
+        class="btn btn-info">❮ Summary</a>
+</nav>
+
+<h2>Review of {{ eval.site.name }} by {{ eval.tester.username }}</h2>
+
+<table class="table table-striped">
+ <thead>
+  <tr>
+     <th>Label</th>
+     <th>Answer</th>
+     <th>Flags</th>
+  </tr>
+ </thead>
+ <tbody>
+ {% for ans in eval.answers.all %}
+  <tr>
+      <td>{{ ans.full_label }}</td>
+      <td>{{ ans.value }}</td>
+      <td>
+         {% if ans.discussion_needed %}&nbsp;<span class="label label-warning">Discussion</span>{% endif %}
+         {% if ans.revision_needed %}&nbsp;<span class="label label-info">Revision</span>{% endif %}
+         {% if ans.note %}
+         &nbsp;<span class="label label-info" data-toggle="popover" title="Notes" data-content="{{ ans.note }}">Notes</span>
+         {% endif %}
+      </td>
+  </tr>
+ {% endfor %}
+ </tbody>
+</table>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+$(document).ready(function(){
+    $('[data-toggle="popover"]').popover(); 
+});
+</script>
+{% endblock %}

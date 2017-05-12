@@ -207,6 +207,9 @@ class SiteEvaluation(models.Model):
 
     class Meta:
         unique_together = ("checklist", "tester", "site")
+        permissions = (
+            ('can_review', 'Can review site evaluations'),
+        )
 
 
 class SiteEvaluationForm(forms.ModelForm):
