@@ -22,7 +22,9 @@
   <div class="panel panel-default">
       <div class="panel-heading">{{ site.grouper }}
           <span class="badge">{{ site.list|length }}</span>
-          &nbsp;<a href="{% url 'survey:compare' checklist.id site.grouper.id %}" class="btn btn-primary btn-sm">Compare</a>
+          {% if site.list|length > 1 %}
+          &nbsp;<a href="{% url 'survey:compare' checklist.id site.grouper.id %}" class="btn btn-default btn-sm">Compare</a>
+          {% endif %}
       </div>
     <div class="list-group">
      {% for eval in site.list %}
