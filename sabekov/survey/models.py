@@ -266,6 +266,7 @@ class AnswerChoice(models.Model):
 
     class Meta:
         unique_together = ('evaluation', 'full_label')
+        ordering = ['id']
 
 
 class AnswerForm(forms.ModelForm):
