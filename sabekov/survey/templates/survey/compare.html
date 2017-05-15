@@ -4,6 +4,10 @@
 
 {% block content %}
 <div class="container">
+<nav>
+    <a href="{% url 'survey:summary-list' checklist.id %}"
+        class="btn btn-info">❮ Summary</a>
+</nav>
 <h2>Compare {{ site.name }}</h2>
 
 {% regroup answers by full_label as label_list %}
