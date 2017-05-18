@@ -10,3 +10,20 @@
     color: inherit;
     text-decoration: none;
 }
+
+.headerlink {
+    opacity: 0;
+    font-size: 0.8em;
+    position: relative;
+    top: -0.17em;
+    font-weight: 700;
+    text-decoration: none;
+    -webkit-transition: opacity 200ms ease-in-out;
+    transition: opacity 200ms ease-in-out
+}
+
+h1:hover > .headerlink, h2:hover > .headerlink, h3:hover > .headerlink,
+h4:hover > .headerlink, h5:hover > .headerlink, h6:hover > .headerlink,
+dl:hover > .headerlink, dt:hover > .headerlink {
+    opacity: 1
+}
