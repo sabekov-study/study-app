@@ -25,15 +25,22 @@
 </div>
 
 {% for ans, form in forms %}
-<div id="{{ ans.get_full_label }}" class="answer{% if ans.parent %} subq child-of-{{ ans.get_parent_label }}{% endif %}">
-    <h3>
-        {{ ans.get_full_label }}
+<div id="{{ ans.get_full_label }}" class="panel panel-primary answer{% if ans.parent %} subq child-of-{{ ans.get_parent_label }}{% endif %}">
+    <div class="panel-heading">
+      <div class="pull-right">
+        {% if ans.parent %}
+          <a href="#{{ ans.get_parent_label }}" class="panel-title" title="to parent"><i class="fa fa-level-up" aria-hidden="true"></i></a>
+        {% endif %}
+      </div>
+      <h3 class="panel-title">{{ ans.get_full_label }}
         {% if ans.is_outdated %}<span class="label label-warning">Changed</span>{% endif %}
-    </h3>
+      </h3>
+    </div>
+    <div class="panel-body">
     {% if ans.question.comment %}
     <details>
         <summary><span class="question-text">{{ ans.question.question_text }}</span></summary>
-        <p class="question-comment">{{ ans.question.comment }}</p>
+        <div class="alert alert-info question-comment"><strong>Bemerkung:&nbsp;</strong>{{ ans.question.comment }}</div>
     </details>
     {% else %}
     <p><span class="question-text">{{ ans.question.question_text }}</span></p>
@@ -57,6 +64,7 @@
         {% render_field form.note class+="form-control" %}
         {{ form.negatives }}
     </div>
+  </div>
 </div>
 {% endfor %}
 <input type="submit" value="Save" class="btn btn-primary"/>
