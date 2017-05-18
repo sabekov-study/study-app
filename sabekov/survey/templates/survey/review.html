@@ -14,9 +14,9 @@
 <table class="table table-striped">
  <thead>
   <tr>
-     <th>Label</th>
-     <th>Answer</th>
-     <th>Flags</th>
+     <th class="col-md-5">Label</th>
+     <th class="col-md-4">Answer</th>
+     <th class="col-md-3">Flags</th>
   </tr>
  </thead>
  <tbody>
@@ -25,10 +25,10 @@
       <td>{{ ans.full_label }}</td>
       <td>{{ ans.value }}</td>
       <td>
-         {% if ans.discussion_needed %}&nbsp;<span class="label label-warning">Discussion</span>{% endif %}
-         {% if ans.revision_needed %}&nbsp;<span class="label label-info">Revision</span>{% endif %}
+         {% if ans.discussion_needed %}<span class="label label-warning">Discussion</span>&nbsp;{% endif %}
+         {% if ans.revision_needed %}<span class="label label-info">Revision</span>&nbsp;{% endif %}
          {% if ans.note %}
-         &nbsp;<span class="label label-info" data-toggle="popover" title="Notes" data-content="{{ ans.note }}">Notes</span>
+         <span class="label label-info" data-toggle="popover" title="Notes" data-content="{{ ans.note }}">Notes</span>
          {% endif %}
       </td>
   </tr>
