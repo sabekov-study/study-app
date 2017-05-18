@@ -19,9 +19,9 @@
     <table class="table">
      <thead>
       <tr>
-         <th>Answer</th>
-         <th>Tester</th>
-         <th>Flags</th>
+         <th class="col-md-6">Answer</th>
+         <th class="col-md-3">Tester</th>
+         <th class="col-md-3">Flags</th>
       </tr>
      </thead>
      <tbody>
@@ -30,10 +30,11 @@
           <td>{{ ans.value }}</td>
           <td>{{ ans.evaluation.tester }}</td>
           <td>
-         {% if eval.note %}
-         &nbsp;<span class="label label-info" data-toggle="popover" title="Notes"
-             data-content="{{ eval.note }}" styles="z-index: 500;">Notes</span>
-            {# FIXME: Catch click on Notes to avoid loading review site #}
+         {% if ans.discussion_needed %}<span class="label label-warning">Discussion</span>&nbsp;{% endif %}
+         {% if ans.revision_needed %}<span class="label label-info">Revision</span>&nbsp;{% endif %}
+         {% if ans.note %}
+         <span class="label label-info" data-toggle="popover" title="Notes"
+             data-content="{{ ans.note }}">Notes</span>
          {% endif %}
         </td>
       </tr>
