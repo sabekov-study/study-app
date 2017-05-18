@@ -36,14 +36,15 @@
       </h3>
     </div>
     <div class="panel-body">
+    <p>
+    <span class="question-text">{{ ans.question.question_text }}</span>
     {% if ans.question.comment %}
-    <details>
-        <summary><span class="question-text">{{ ans.question.question_text }}</span></summary>
-        <div class="alert alert-info question-comment"><strong>Bemerkung:&nbsp;</strong>{{ ans.question.comment }}</div>
-    </details>
-    {% else %}
-    <p><span class="question-text">{{ ans.question.question_text }}</span></p>
+        &nbsp;<a href="#{{ ans.get_full_label }}-comment" data-toggle="collapse">more...</a>
+    </p>
+    <p id="{{ ans.get_full_label }}-comment" class="collapse">
+      Note: {{ ans.question.comment }}
     {% endif %}
+    </p>
 
     <div class="form-group">
         {{ form.value|as_crispy_field }}
@@ -80,6 +81,8 @@
   <div class="panel-heading"><i class="fa fa-cog" aria-hidden="true"></i> Actions</div>
   <div class="panel-body">
   <input form="eval-form" type="submit" value="Save Evaluation" class="btn btn-default btn-success btn-block"/>
+  <button class="btn btn-default btn-block" onclick="$('#eval-form .collapse').collapse('show');">Show all notes</button>
+  <button class="btn btn-default btn-block" onclick="$('#eval-form .collapse').collapse('hide');">Hide all notes</button>
   </div>
 </div>
 </div>
