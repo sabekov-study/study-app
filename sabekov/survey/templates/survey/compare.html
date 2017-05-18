@@ -25,7 +25,7 @@
       </tr>
      </thead>
      <tbody>
-     {% for ans in label.list %}
+     {% for ans in label.list|dictsort:"evaluation.tester.username" %}
       <tr>
           <td>{{ ans.value }}</td>
           <td>{{ ans.evaluation.tester }}</td>

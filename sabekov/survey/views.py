@@ -111,9 +111,8 @@ class CompareListView(PermissionRequiredMixin, ListView):
     def get_queryset(self):
         self.checklist = get_object_or_404(Checklist, pk=self.kwargs['checklist_id'])
         self.site = get_object_or_404(Site, pk=self.kwargs['site_id'])
-        return AnswerChoice.objects.filter(evaluation__checklist=self.checklist,
-            evaluation__site=self.site).order_by('full_label',
-            'evaluation__tester__username')
+        return AnswerChoice.objects.ordered_by_label(self.checklist,
+            evaluation__site=self.site)
 
     def get_context_data(self, **kwargs):
         context = super(CompareListView, self).get_context_data(**kwargs)

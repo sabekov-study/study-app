@@ -235,6 +235,15 @@ class AnswerOption(models.Model):
         order_with_respect_to = 'question'
 
 
+class SortedAnswerChoiceManager(models.Manager):
+    def ordered_by_label(self, checklist, *args, **kwargs):
+        # get full label order reference
+        ref_eval = SiteEvaluation.objects.filter(checklist=checklist).last()
+        ref_list = list(ref_eval.answers.values_list('full_label', flat=True))
+        # query
+        qs = super(SortedAnswerChoiceManager, self).get_queryset().filter(evaluation__checklist=checklist).filter(*args, **kwargs)
+        return sorted(qs, key=lambda ac: ref_list.index(ac.full_label))
+
 class AnswerChoice(models.Model):
     evaluation = models.ForeignKey(SiteEvaluation, on_delete=models.CASCADE, related_name="answers")
     full_label = models.SlugField(max_length=100, db_index=True)
@@ -247,6 +256,7 @@ class AnswerChoice(models.Model):
     revision_needed = models.BooleanField(default=False)
     last_updated = models.DateTimeField(auto_now=True)
     history = HistoricalRecords()
+    objects = SortedAnswerChoiceManager()
 
     def get_full_label(self):
         return self.full_label
