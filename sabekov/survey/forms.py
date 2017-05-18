@@ -20,7 +20,9 @@ class AnswerFilterForm(forms.Form):
             ("discussion_needed", "discussion need"),
             ("revision_needed", "revision needed"),
         ),
-        widget=forms.CheckboxSelectMultiple(),
+        widget=forms.CheckboxSelectMultiple(attrs = {
+            'onchange': 'applyFilter()',
+        }),
         label='',
     )
 
@@ -30,10 +32,6 @@ class AnswerFilterForm(forms.Form):
         self.helper.form_class = 'form'
         self.helper.layout = Layout(
             'filter',
-            FormActions(
-                StrictButton('Apply Filter', css_class='btn-block',
-                    onclick='applyFilter()'),
-            )
         )
 
 
