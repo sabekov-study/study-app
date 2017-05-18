@@ -168,5 +168,26 @@ function applyFilter() {
 	})
 }
 
+function ajaxifySubmit() {
+	var frm = $('#eval-form');
+	frm.submit(function () {
+		$.ajax({
+			type: frm.attr('method'),
+			url: frm.attr('action'),
+			data: frm.serialize(),
+			success: function (data) {
+				$("#ajax-messages").html('<div class="alert alert-success">Successfully saved.</div>');
+			},
+			error: function(data) {
+				console.log(data)
+				$("#ajax-messages").html('<div class="alert alert-danger">Saving failed.</div>');
+			}
+		});
+		return false;
+	});
+}
+
+
 hideInactiveSubtrees()
 installOnchangeListeners()
+ajaxifySubmit()
