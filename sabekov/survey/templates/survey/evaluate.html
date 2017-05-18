@@ -16,8 +16,7 @@
 
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
-{% crispy filter %}
-
+<div class="col-md-9">
 <form id="eval-form" action="{% url 'survey:evaluate' evaluation.checklist.id evaluation.site.id %}" method="post">
 {% csrf_token %}
 <div class="general-notes form-group">
@@ -69,7 +68,21 @@
 {% endfor %}
 <input type="submit" value="Save" class="btn btn-primary"/>
 </form>
+</div>
 
+<div class="col-md-3">
+<div class="panel-group affix" style="width: inherit;">
+<div class="panel panel-default">
+  <div class="panel-heading"><i class="fa fa-filter" aria-hidden="true"></i> Filter</div>
+  <div class="panel-body">{% crispy filter %}</div>
+</div>
+<div class="panel panel-default">
+  <div class="panel-heading"><i class="fa fa-cog" aria-hidden="true"></i> Actions</div>
+  <div class="panel-body">
+  <input form="eval-form" type="submit" value="Save Evaluation" class="btn btn-default btn-success btn-block"/>
+  </div>
+</div>
+</div>
 {% endblock %}
 
 {% block scripts %}

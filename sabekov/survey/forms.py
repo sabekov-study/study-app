@@ -17,8 +17,8 @@ class AnswerFilterForm(forms.Form):
     filter = forms.ChoiceField(
         choices=(
             ("unanswered", "unanswered"),
-            ("discussion_needed", "discussion"),
-            ("revision_needed", "revision"),
+            ("discussion_needed", "discussion need"),
+            ("revision_needed", "revision needed"),
         ),
         widget=forms.CheckboxSelectMultiple(),
         label='',
@@ -27,11 +27,11 @@ class AnswerFilterForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(AnswerFilterForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_class = 'form-inline text-right'
+        self.helper.form_class = 'form'
         self.helper.layout = Layout(
-            InlineCheckboxes('filter'),
+            'filter',
             FormActions(
-                StrictButton('Filter', css_class='btn-xs',
+                StrictButton('Apply Filter', css_class='btn-block',
                     onclick='applyFilter()'),
             )
         )
