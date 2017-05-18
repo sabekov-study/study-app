@@ -221,7 +221,7 @@ class SiteEvaluationForm(forms.ModelForm):
                 'note': forms.Textarea(attrs={'rows': '5'}),
         }
         labels = {
-            'note': 'General notes',
+            'note': '',
         }
 
 

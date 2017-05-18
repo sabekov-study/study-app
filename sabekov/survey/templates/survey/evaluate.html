@@ -19,8 +19,9 @@
 <div class="col-md-9">
 <form id="eval-form" action="{% url 'survey:evaluate' evaluation.checklist.id evaluation.site.id %}" method="post">
 {% csrf_token %}
-<div class="general-notes form-group">
-    {{ eval_form|crispy }}
+<div class="panel panel-default general-notes">
+  <div class="panel-heading">General Notes</div>
+  <div class="panel-body">{{ eval_form|crispy }}</div>
 </div>
 
 {% for ans, form in forms %}
