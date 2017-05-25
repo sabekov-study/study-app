@@ -23,6 +23,12 @@ class Checklist(models.Model):
     def get_sequence(self):
         return self.catalogs.filter(is_top_level=True)
 
+    def list_expanded_labels(self):
+        l = list()
+        for cat in self.get_sequence():
+            l.extend(cat.expand(labels_only=True))
+        return l
+
     @staticmethod
     @transaction.atomic
     def import_from_json(path):
@@ -295,8 +301,7 @@ class AnswerOption(models.Model):
 class SortedAnswerChoiceManager(models.Manager):
     def ordered_by_label(self, checklist, *args, **kwargs):
         # get full label order reference
-        ref_eval = SiteEvaluation.objects.filter(checklist=checklist).last()
-        ref_list = list(ref_eval.answers.values_list('full_label', flat=True))
+        ref_list = checklist.list_expanded_labels()
         # query
         qs = super(SortedAnswerChoiceManager, self).get_queryset().filter(evaluation__checklist=checklist).filter(*args, **kwargs)
         return sorted(qs, key=lambda ac: ref_list.index(ac.full_label))
