@@ -82,6 +82,27 @@ class Catalog(models.Model):
     def __str__(self):
         return self.label
 
+    def expand(self, labels_only=False):
+        l = list()
+        self.__build_full_list(self, l, labels_only=labels_only)
+        return l
+
+    def __build_full_list(self, catalog, label_list, prefixes=[], labels_only=False):
+        for q in catalog.questions.all():
+            if q.reference:
+                prefix = q.label.rsplit('_' + q.reference.label, maxsplit=1)[0]
+                self.__build_full_list(
+                    q.reference,
+                    label_list,
+                    prefixes + [prefix],
+                    labels_only=labels_only,
+                )
+            else:
+                full_label = "_".join(prefixes + [q.label])
+                label_list.append(
+                    (full_label, q) if not labels_only else full_label
+                )
+
     class Meta:
         order_with_respect_to = 'checklist'
         unique_together = ('checklist', 'label')
@@ -187,17 +208,53 @@ class SiteEvaluation(models.Model):
                     label = cand_label
         return None
 
-    def generate_forms(self, data=None):
+
+    def answers_ordered_by_label(self, flat=False, add_unanswered=False):
+        """Returns a list of AnswerChoice/AnswerForm tuples."""
+        l = list()
+        for cat in self.checklist.get_sequence():
+            catlist = list()
+            for full_label, q in cat.expand():
+                try:
+                    ac = self.answers.get(
+                        full_label=full_label,
+                    )
+                    catlist.append(ac)
+                except AnswerChoice.DoesNotExist:
+                    if add_unanswered:
+                        ac = AnswerChoice(
+                            evaluation=self,
+                            full_label=full_label,
+                            question=q,
+                            parent = self.__get_parent(full_label),
+                        )
+                        catlist.append(ac)
+                    else:
+                        pass
+            if flat:
+                l.extend(catlist)
+            else:
+                l.append((cat.label, catlist))
+        return l
+
+
+    def get_forms(self, data=None):
         """Returns a list of AnswerChoice/AnswerForm tuples."""
         forms = list()
-        for ans in self.answers.order_by('pk'):
-            f = AnswerForm(
-                    data,
-                    instance=ans,
-                    prefix=ans.get_full_label()
-            )
-            forms.append((ans, f))
+        for cat, cl in self.answers_ordered_by_label(add_unanswered=True):
+            catforms = list()
+            for ac in cl:
+                catforms.append((
+                    ac,
+                    AnswerForm(
+                        data,
+                        instance=ac,
+                        prefix=ac.full_label,
+                    )
+                ))
+            forms.append((cat, catforms))
         return forms
+
 
     def count_discussions(self):
         return self.answers.filter(discussion_needed=True).count()
@@ -266,6 +323,8 @@ class AnswerChoice(models.Model):
 
     def is_outdated(self):
         """Checks if the question changed since this answer has been given."""
+        if self.last_updated is None:
+            return False
         return self.last_updated < self.question.history.latest('history_date').history_date
 
     def get_question_as_answered(self):

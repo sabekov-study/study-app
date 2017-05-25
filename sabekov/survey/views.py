@@ -49,24 +49,29 @@ def evaluate(request, checklist_id, site_id):
         site=Site.objects.get(pk=site_id),
         checklist=Checklist.objects.get(pk=checklist_id),
     )
-    e.populate_answers() # Note: running on existing evaluations it adds potentially new questions
+    #e.populate_answers() # Note: running on existing evaluations it adds potentially new questions
+    # TODO: population might still be necessary to create ACs for answers where
+    # the value is willingly blank.
 
     if request.method == 'POST':
         eval_form = SiteEvaluationForm(request.POST, instance=e, prefix='GENERAL')
         if eval_form.is_valid() and eval_form.has_changed():
             eval_form.save()
 
-        forms = e.generate_forms(data=request.POST)
-        for ans, form in forms:
-            form.full_clean()
-        valid = all([ form.is_valid() for _, form in forms ])
+        forms = e.get_forms(data=request.POST)
+        valid = True
+        for _, formlist in forms:
+            for _, form in formlist:
+                form.full_clean()
+                valid = valid and form.is_valid()
         if valid:
-            for ans, form in forms:
-                if form.has_changed():
-                    form.save()
+            for _, formlist in forms:
+                for _, form in formlist:
+                    if form.has_changed():
+                        form.save()
     else:
         eval_form = SiteEvaluationForm(instance=e, prefix='GENERAL')
-        forms = e.generate_forms()
+        forms = e.get_forms()
 
     template = loader.get_template('survey/evaluate.html')
     context = {

@@ -19,8 +19,9 @@
      <th class="col-md-3">Flags</th>
   </tr>
  </thead>
- <tbody>
- {% for ans in eval.answers.all %}
+ {% for cat, catlist in eval.answers_ordered_by_label %}
+ <tbody id="cat-{{ cat }}">
+ {% for ans in catlist %}
   <tr>
       <td>{{ ans.full_label }}</td>
       <td>{{ ans.value }}</td>
@@ -34,6 +35,7 @@
   </tr>
  {% endfor %}
  </tbody>
+ {% endfor %}
 </table>
 </div>
 {% endblock %}

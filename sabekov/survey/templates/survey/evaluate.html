@@ -24,7 +24,9 @@
   <div class="panel-body">{{ eval_form|crispy }}</div>
 </div>
 
-{% for ans, form in forms %}
+{% for cat, formlist in forms %}
+<div id="cat-{{ cat }}">
+{% for ans, form in formlist %}
 <div id="{{ ans.get_full_label }}" class="panel panel-primary answer{% if ans.parent %} subq child-of-{{ ans.get_parent_label }}{% endif %}">
     <div class="panel-heading">
       <div class="pull-right">
@@ -67,6 +69,8 @@
         {{ form.negatives }}
     </div>
   </div>
+</div>
+{% endfor %}
 </div>
 {% endfor %}
 <input type="submit" value="Save" class="btn btn-primary"/>
