@@ -158,11 +158,17 @@ function isFiltered(label) {
 }
 
 function applyFilter() {
+	hideInactiveSubtrees() // make sure re-activated sub-q are hidden again (see below)
 	iterateAnswers(function(element) {
 		var label = element.id
 		if (isFiltered(label)) {
 			element.classList.add('filtered')
 		} else {
+			// re-activate hidden sub-questions to show changed questions
+			// marked for revision
+			if (filterIsActive('3') && isRevisionNeeded(label)) {
+				element.classList.remove('inactive')
+			}
 			element.classList.remove('filtered')
 		}
 	})
