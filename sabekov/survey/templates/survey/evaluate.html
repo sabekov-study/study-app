@@ -78,7 +78,7 @@
 </div>
 
 <div class="col-md-3">
-<div class="panel-group affix" style="width: inherit;">
+<div class="panel-group affix" style="width: inherit; top: 100px;">
 <div class="panel panel-default">
   <div class="panel-heading"><i class="fa fa-filter" aria-hidden="true"></i> Filter</div>
   <div class="panel-body">{% crispy filter %}</div>
@@ -87,6 +87,15 @@
   <div class="panel-heading"><i class="fa fa-cog" aria-hidden="true"></i> Actions</div>
   <div class="panel-body">
   <input form="eval-form" type="submit" value="Save Evaluation" class="btn btn-default btn-success btn-block"/>
+  <div class="dropdown">
+    <button class="btn btn-default btn-block dropdown-toggle" type="button" data-toggle="dropdown">Goto Catalog
+    <span class="caret"></span></button>
+    <ul class="dropdown-menu">
+      {% for cat, _ in forms %}
+        <li><a href="#cat-{{ cat }}">{{ cat }}</a></li>
+      {% endfor %}
+    </ul>
+  </div>
   <button class="btn btn-default btn-block" onclick="$('#eval-form .collapse').collapse('show');">Show all notes</button>
   <button class="btn btn-default btn-block" onclick="$('#eval-form .collapse').collapse('hide');">Hide all notes</button>
   </div>
