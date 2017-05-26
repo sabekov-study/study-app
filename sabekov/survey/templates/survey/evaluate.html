@@ -26,6 +26,7 @@
 
 {% for cat, formlist in forms %}
 <div id="cat-{{ cat }}">
+  <h3>{{ cat }}</h3>
 {% for ans, form in formlist %}
 <div id="{{ ans.get_full_label }}" class="panel panel-primary answer{% if ans.parent %} subq child-of-{{ ans.get_parent_label }}{% endif %}">
     <div class="panel-heading">
