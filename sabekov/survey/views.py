@@ -49,9 +49,7 @@ def evaluate(request, checklist_id, site_id):
         site=Site.objects.get(pk=site_id),
         checklist=Checklist.objects.get(pk=checklist_id),
     )
-    #e.populate_answers() # Note: running on existing evaluations it adds potentially new questions
-    # TODO: population might still be necessary to create ACs for answers where
-    # the value is willingly blank.
+    e.populate_answers() # Note: running on existing evaluations it adds potentially new questions
 
     if request.method == 'POST':
         eval_form = SiteEvaluationForm(request.POST, instance=e, prefix='GENERAL')

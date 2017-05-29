@@ -232,7 +232,7 @@ class SiteEvaluation(models.Model):
                             evaluation=self,
                             full_label=full_label,
                             question=q,
-                            parent = self.__get_parent(full_label),
+                            parent=self.__get_parent(full_label), # Fixme: This does not work if parent ACs are not saved yet.
                         )
                         catlist.append(ac)
                     else:
@@ -267,6 +267,23 @@ class SiteEvaluation(models.Model):
 
     def count_revisions(self):
         return self.answers.filter(revision_needed=True).count()
+
+
+    @transaction.atomic
+    def repair_parent_references(self):
+        if self.answers.exclude(parent=None).exists():
+            # some answers have parent set, so its fine
+            return
+        for ac in self.answers.all():
+            ac.parent = self.__get_parent(ac.full_label)
+            ac.save()
+
+
+    @staticmethod
+    def repair_all_parent_references():
+        for se in SiteEvaluation.objects.all():
+            se.repair_parent_references()
+
 
     class Meta:
         unique_together = ("checklist", "tester", "site")
