@@ -270,8 +270,8 @@ class SiteEvaluation(models.Model):
 
 
     @transaction.atomic
-    def repair_parent_references(self):
-        if self.answers.exclude(parent=None).exists():
+    def repair_parent_references(self, force=False):
+        if not force and self.answers.exclude(parent=None).exists():
             # some answers have parent set, so its fine
             return
         for ac in self.answers.all():
