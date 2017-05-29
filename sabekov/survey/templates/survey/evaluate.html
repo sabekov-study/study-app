@@ -4,7 +4,7 @@
 {% load crispy_forms_tags %}
 
 
-{% block window_title %}Evaluation {{ evaluation.site.name }}{% endblock %}
+{% block window_title %}Eval {{ evaluation.site.name }}{% endblock %}
 {% block title %}Evaluation of {{ evaluation.site.name }}{% endblock %}
 
 {% block content %}
@@ -80,6 +80,9 @@
 
 <div class="col-md-3">
 <div class="panel-group affix" style="width: inherit; top: 100px;">
+<div class="panel panel-primary">
+  <div class="panel-heading"><h3 class="panel-title">{{ evaluation.site.name }}</h3></div>
+</div>
 <div class="panel panel-default">
   <div class="panel-heading"><i class="fa fa-filter" aria-hidden="true"></i> Filter</div>
   <div class="panel-body">{% crispy filter %}</div>
