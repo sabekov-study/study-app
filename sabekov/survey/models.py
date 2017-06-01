@@ -268,6 +268,13 @@ class SiteEvaluation(models.Model):
     def count_revisions(self):
         return self.answers.filter(revision_needed=True).count()
 
+    def estimate_progress(self):
+        """Estimate the evaluation progress. Returns a values between 0 and 100."""
+        total_qs = self.answers.exclude(parent__value="n.n.")
+        return int(round(total_qs.exclude(value__in=["", "n.n."]).count() /
+                total_qs.count(), 2) * 100)
+
+
 
     @transaction.atomic
     def repair_parent_references(self, force=False):

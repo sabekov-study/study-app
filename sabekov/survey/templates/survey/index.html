@@ -27,7 +27,8 @@
 <table class="table table-striped">
  <thead>
   <tr>
-     <th class="col-md-8">Site</th>
+     <th class="col-md-6">Site</th>
+     <th class="col-md-2">Est. Progress</th>
      <th class="col-md-4">Status</th>
   </tr>
  </thead>
@@ -35,6 +36,15 @@
  {% for site, evaluation in site_list %}
   <tr>
      <td><a href="{% url 'survey:evaluate' checklist.id site.id %}">{{ site.name }}</a></td>
+     <td>
+       {% with prog=evaluation.estimate_progress %}
+       <div class="progress">
+         <div class="progress-bar" role="progressbar" aria-valuenow="{{ prog }}" aria-valuemin="0" aria-valuemax="100" style="width:{{ prog }}%">
+           <span class="sr-only">{{ prog }}%</span>
+        </div>
+       </div>
+       {% endwith %}
+     </td>
      <td>
        {% if evaluation %}<span class="label label-warning">Discussions <span class="badge">{{ evaluation.count_discussions }}</span></span>&nbsp;{% endif %}
        {% if evaluation %}<span class="label label-info">Revisions <span class="badge">{{ evaluation.count_revisions }}</span></span>&nbsp;{% endif %}
