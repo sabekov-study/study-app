@@ -4,13 +4,7 @@
 
 {% block content %}
 <div class="container">
-{% if perms.survey.can_review %}
-<ul class="nav nav-pills">
-  <li><a href="{% url 'survey:site_overview' checklist.id %}">Overview</a></li>
-  <li><a href="{% url 'survey:summary-list' checklist.id %}">Summary</a></li>
-  <li class="active"><a href="{% url 'survey:summary-by-user-list' checklist.id %}">Summary by User</a></li>
-</ul>
-{% endif %}
+{% include 'survey/menu.html' with active_nav='summary-by-user' %}
 
 <h2>Summary</h2>
 

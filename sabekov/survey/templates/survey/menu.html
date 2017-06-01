@@ -1,0 +1,18 @@
+{% if perms.survey.can_review %}
+<ul class="nav nav-pills">
+    <li{% if active_nav == 'overview' %} class="active"{% endif %}>
+        <a href="{% url 'survey:site_overview' checklist.id %}">Overview</a>
+    </li>
+    <li{% if active_nav == 'summary' %} class="active"{% endif %}>
+        <a href="{% url 'survey:summary-list' checklist.id %}">Summary</a>
+    </li>
+    <li{% if active_nav == 'summary-by-user' %} class="active"{% endif %}>
+        <a href="{% url 'survey:summary-by-user-list' checklist.id %}">Summary by User</a>
+    </li>
+    {% if user.is_staff %}
+    <li{% if active_nav == 'checklist' %} class="active"{% endif %}>
+        <a href="{% url 'survey:import-checklist' %}">Update Checklist</a>
+    </li>
+    {% endif %}
+</ul>
+{% endif %}
