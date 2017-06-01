@@ -125,7 +125,7 @@ class Question(models.Model):
     )
     label = models.SlugField(max_length=30, unique=True)
     question_text = models.CharField(max_length=300, blank=True)
-    comment = models.CharField(max_length=300, blank=True)
+    comment = models.CharField(max_length=1000, blank=True)
     answer_type = models.CharField(max_length=2, choices=ANSWER_TYPES, default=ALTERNATIVES, blank=True)
     catalog = models.ForeignKey(Catalog, on_delete=models.CASCADE, related_name="questions")
     reference = models.ForeignKey(Catalog, on_delete=models.CASCADE, related_name="references", blank=True, null=True)
@@ -175,7 +175,7 @@ class SiteEvaluation(models.Model):
     checklist = models.ForeignKey(Checklist, on_delete=models.CASCADE, related_name="evaluations")
     tester = models.ForeignKey(User, on_delete=models.CASCADE, related_name="evaluations")
     site = models.ForeignKey(Site, on_delete=models.CASCADE, related_name="evaluations")
-    note = models.CharField(max_length=300, blank=True)
+    note = models.CharField(max_length=1000, blank=True)
     finished = models.BooleanField(default=False)
     reviewed = models.BooleanField(default=False)
 
