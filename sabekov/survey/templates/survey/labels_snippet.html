@@ -1,0 +1,12 @@
+
+{% if eval.finished %}&nbsp;<span class="label label-success">Finished</span>{% endif %}
+{% if eval.reviewed %}&nbsp;<span class="label label-info">Reviewed</span>{% endif %}
+{% if eval.note %}
+    &nbsp;<span class="label label-info" data-toggle="popover" title="Notes"
+     data-content="{{ eval.note }}" styles="z-index: 500;">Notes</span>
+{% endif %}
+{% with dis_count=eval.count_discussions %}
+     {% if dis_count > 0 %}
+        &nbsp;<span class="label label-warning">Discussions <span class="badge">{{ dis_count }}</span></span>
+     {% endif %}
+{% endwith %}

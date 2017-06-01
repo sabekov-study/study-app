@@ -1,0 +1,11 @@
+ <tr>
+ <td class="col-md-6">
+ <a href="{% url 'survey:review' eval.id %}" style="display:block;">{{ name }}
+  </td>
+ <td class="col-md-2">
+   {% include "survey/progress_snippet.html" with eval=eval %}
+  </td>
+<td class="col-md-4">
+   {% include "survey/labels_snippet.html" with eval=eval %}
+</td>
+</tr>

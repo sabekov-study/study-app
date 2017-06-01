@@ -26,24 +26,11 @@
           &nbsp;<a href="{% url 'survey:compare' checklist.id site.grouper.id %}" class="btn btn-default btn-sm">Compare</a>
           {% endif %}
       </div>
-    <div class="list-group">
+    <table class="table table-hover">
      {% for eval in site.list %}
-     <a href="{% url 'survey:review' eval.id %}" class="list-group-item">{{ eval.tester }}
-     {% if eval.finished %}&nbsp;<span class="label label-success">Finished</span>{% endif %}
-     {% if eval.reviewed %}&nbsp;<span class="label label-info">Reviewed</span>{% endif %}
-     {% if eval.note %}
-     &nbsp;<span class="label label-info" data-toggle="popover" title="Notes"
-         data-content="{{ eval.note }}" styles="z-index: 500;">Notes</span>
-        {# FIXME: Catch click on Notes to avoid loading review site #}
-     {% endif %}
-     {% with dis_count=eval.count_discussions %}
-         {% if dis_count > 0 %}
-         &nbsp;<span class="label label-warning">Discussions <span class="badge">{{ dis_count }}</span></span>
-         {% endif %}
-     {% endwith %}
-    </a>
+       {% include "survey/summary_entry_snippet.html" with eval=eval name=eval.tester %}
      {% endfor %}
-    </div>
+    </table>
     </div>
  {% endfor %}
 </div>

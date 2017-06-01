@@ -37,13 +37,7 @@
   <tr>
      <td><a href="{% url 'survey:evaluate' checklist.id site.id %}">{{ site.name }}</a></td>
      <td>
-       {% with prog=evaluation.estimate_progress %}
-       <div class="progress">
-         <div class="progress-bar" role="progressbar" aria-valuenow="{{ prog }}" aria-valuemin="0" aria-valuemax="100" style="width:{{ prog }}%">
-           <span class="sr-only">{{ prog }}%</span>
-        </div>
-       </div>
-       {% endwith %}
+       {% include "survey/progress_snippet.html" with eval=evaluation %}
      </td>
      <td>
        {% if evaluation %}<span class="label label-warning">Discussions <span class="badge">{{ evaluation.count_discussions }}</span></span>&nbsp;{% endif %}
