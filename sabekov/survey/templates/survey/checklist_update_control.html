@@ -1,0 +1,73 @@
+{% extends 'base/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block window_title %}Update Checklist{% endblock %}
+
+{% block content %}
+
+<h2>Update Checklist</h2>
+
+<div class="alert alert-info">
+    Please verify the planed changes and select those modifications
+    that should flag existing answers for a revision.<br/>
+    Changes to question texts or answer choices are flagged by default.
+</div>
+
+<form id="update-control-form" action="{% url 'survey:apply-import' checklist.id %}" method="post">
+{% csrf_token %}
+{{ import_data_form }}
+{% if q_modified %}
+<div class="panel panel-default">
+    <div class="panel-heading">Modified Questions <span class="badge">{{ q_modified|length }}</span></div>
+<table class="table table-striped">
+<thead>
+    <th class="col-md-3">Label</th>
+    <th class="col-md-8">Change</th>
+    <th class="col-md-1">Flag for revision?</th>
+</thead>
+<tbody>
+{% for qdiff in q_modified %}
+<tr>
+    <td>{{ qdiff.label }}</td>
+    <td>
+        {% include 'survey/qdiff_snippet.html' with name='Text' diff=qdiff.text %}
+        {% include 'survey/qdiff_snippet.html' with name='Comment' diff=qdiff.comment %}
+        {% include 'survey/qdiff_snippet.html' with name='Reference' diff=qdiff.ref %}
+    </td>
+    <td>{{ qdiff.form.as_p }}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+{% endif %}
+
+{% if q_new or q_deleted %}
+<div class="row">
+<div class="col-md-6">
+<div class="panel panel-default">
+    <div class="panel-heading">New Questions <span class="badge">{{ q_new|length }}</span></div>
+    <ul class="list-group">
+    {% for q in q_new %}
+        <li class="list-group-item list-group-item-success">{{ q }}</li>
+    {% endfor %}
+    </ul>
+</div>
+</div>
+<div class="col-md-6">
+<div class="panel panel-default">
+    <div class="panel-heading">Deleted Questions <span class="badge">{{ q_deleted|length }}</span></div>
+    <ul class="list-group">
+    {% for q in q_deleted %}
+        <li class="list-group-item list-group-item-danger">{{ q }}</li>
+    {% endfor %}
+    </ul>
+</div>
+</div>
+</div>
+{% endif %}
+
+<input type="submit" value="Apply" class="btn btn-success"/>
+<a href="{% url 'survey:site_overview' checklist.id %}" class="btn btn-default">Cancel</a>
+</form>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% if diff %}
+<p>
+<strong>{{ name }}:</strong><br/>
+{% with old=diff.0 new=diff.1 %}
+{% if old %}
+<span class="label label-default">Old</span> {{ old }}<br/>
+{% endif %}
+<span class="label label-info">New</span> {{ new }}
+{% endwith %}
+</p>
+{% endif %}

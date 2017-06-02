@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Case, When
 from django.contrib.auth.models import User
 from django.db import transaction
 from django import forms
@@ -10,6 +11,45 @@ from crispy_forms.bootstrap import InlineCheckboxes, FormActions
 from simple_history.models import HistoricalRecords
 
 import json
+
+
+
+class QuestionDiff(object):
+    """Descriptor for changes in questions."""
+
+    def __init__(self, question, jdata):
+        self.question = question
+        self.jdata = jdata
+        self.label = question.label
+        self.text = self.__diff(question.question_text, jdata.get('question'))
+        self.comment = self.__diff(question.comment, jdata.get('comment'))
+        self.type = None # type diff detechtion not yet supported
+        self.ref = self.__diff_ref(question.reference, jdata.get('reference'))
+        self.choices = None # answer diff not yet supported
+        self.generate_control_form()
+
+
+    def __diff(self, o, n):
+        return (o, n) if (o or n) and o != n else None
+
+    def __diff_ref(self, o, n):
+        if o:
+            return self.__diff(o.label, n)
+        else:
+            return self.__diff(o, n)
+
+    def has_changed(self):
+        return any([self.text, self.comment, self.type, self.ref, self.choices])
+
+    def generate_control_form(self, data=None):
+        from .forms import UpdateControlForm
+        self.form = UpdateControlForm(
+            data,
+            prefix=self.label,
+            initial = {
+                'flag_revision': any([self.text, self.type, self.choices]),
+            },
+        )
 
 
 class Checklist(models.Model):
@@ -29,54 +69,116 @@ class Checklist(models.Model):
             l.extend(cat.expand(labels_only=True))
         return l
 
+    def list_changes(self, jdata):
+        """List changes compared to json import."""
+        new = list()
+        modified = list()
+        deleted = list()
+        for cn in jdata.get("subcategories"):
+            cat = None
+            try:
+                cat = self.catalogs.get(label=cn)
+            except Catalog.DoesNotExist:
+                pass
+
+            ql = jdata.get("subcategories").get(cn)
+            label_l = [qd.get('label') for qd in ql]
+
+            if cat:
+                new.extend([l for l in label_l if l not in cat.questions.values_list('label', flat=True)])
+                deleted.extend(cat.questions.exclude(label__in=label_l))
+                existing_qs = cat.questions.filter(label__in=label_l)
+                for qd in ql:
+                    if qd.get('label') in new:
+                        continue
+                    q = existing_qs.get(label=qd.get('label'))
+                    qdiff = QuestionDiff(q, qd)
+                    if qdiff.has_changed():
+                        modified.append(qdiff)
+            else:
+                new.extend(label_l) # entirely new catalog
+
+        return (new, modified, deleted)
+
+
+    @transaction.atomic
+    def update(self, jdata, flag_revision=[]):
+        """Update checklist from given json representation."""
+        top_cats = jdata.get("steps")
+        for cn in jdata.get("subcategories"):
+            self.catalogs.update_or_create(
+                label=cn,
+                defaults={'is_top_level': cn in top_cats},
+            )
+        # delete obsolete cats
+        self.catalogs.exclude(label__in=jdata.get('subcategories')).delete()
+        # update catalog order (only relevant for top-level cats)
+        cat_order = Case(*[When(label=label, then=pos) for pos, label in enumerate(top_cats)], default=len(top_cats))
+        new_pk_order = self.catalogs.order_by(cat_order).values_list('pk', flat=True)
+        self.set_catalog_order(new_pk_order)
+
+        # add, update or delete questions per category
+        for cn in jdata.get("subcategories"):
+            cat = self.catalogs.get(label=cn)
+            q_pks = list()
+            for qd in jdata.get("subcategories").get(cn):
+                type_mapping = {
+                    "selection": Question.ALTERNATIVES,
+                    "multiselection":  Question.MULTINOM,
+                    "input":  Question.INPUT,
+                }
+                q, created = cat.questions.update_or_create(
+                    label=qd.get("label"),
+                    defaults={
+                        'question_text': qd.get("question") or "",
+                        'comment': qd.get("comment") or "",
+                        'reference': self.catalogs.get(label=qd.get("reference")) if qd.get("reference") else None,
+                        'answer_type': type_mapping.get(qd.get('answer_type'), ''),
+                    }
+                )
+                q_pks.append(q.pk)
+
+                # update answer choices
+                ans_pks = list()
+                ans_options = qd.get("answers") or []
+                if type(ans_options) is not list:
+                    # bug in json converter tool
+                    ans_options = [ans_options]
+                for ans in ans_options:
+                    negative = (ans.startswith("_") and ans.endswith("_"))
+                    ao, created = q.answer_options.update_or_create(
+                        name=ans if not negative else ans[1:-1],
+                        defaults={'negativ': negative},
+                    )
+                    ans_pks.append(ao.pk)
+                # delete obsolete options
+                q.answer_options.exclude(pk__in=ans_pks).delete()
+                # update order
+                q.set_answeroption_order(ans_pks)
+                # flag answers for revision if wanted
+                if q.label in flag_revision:
+                    q.answers.update(revision_needed=True)
+            # delete obsolete questions
+            cat.questions.exclude(pk__in=q_pks).delete()
+            # update order
+            cat.set_question_order(q_pks)
+
+
     @staticmethod
     @transaction.atomic
     def import_from_json(path):
         import json
         with open(path, "r") as f:
             obj = json.load(f)
-            cl = Checklist.objects.create(
-                    name=obj.get("name", "imported"),
-                    version=obj.get("version"),
-                    is_active=True,
-                )
-            # add top-level cats first to achieve proper ordering
-            top_cats = obj.get("steps")
-            for cn in top_cats:
-                cl.catalogs.create(label=cn, is_top_level=True)
-            # add remaining cats
-            for cn in obj.get("subcategories"):
-                if cn in top_cats:
-                    continue # already added before
-                cl.catalogs.create(label=cn)
-            # add questions
-            for cn in obj.get("subcategories"):
-                ql = obj.get("subcategories").get(cn)
-                for qd in ql:
-                    q = Question.objects.create(
-                            label=qd.get("label"),
-                            question_text=qd.get("question") if qd.get("question") else "",
-                            catalog=Catalog.objects.get(label=cn)
-                        )
-                    if qd.get("reference"):
-                        q.reference = Catalog.objects.get(label=qd.get("reference"))
-                    if qd.get("answer_type") == "selection":
-                        q.answer_type = Question.ALTERNATIVES
-                    elif qd.get("answer_type") == "multiselection":
-                        q.answer_type = Question.MULTINOM
-                    elif qd.get("answer_type") == "input":
-                        q.answer_type = Question.INPUT
-                    else:
-                        q.answer_type = ""
-                    ansl = qd.get("answers") if qd.get("answers") else []
-                    for ans in ansl:
-                        negative = (ans.startswith("_") and ans.endswith("_"))
-                        q.answer_options.create(
-                            name=ans if not negative else ans[1:-1],
-                            negativ=negative,
-                        )
-                    q.save()
-            cl.save()
+            cl = Checklist.objects.get_or_create(
+                name=obj.get("name", "imported"),
+                defaults={
+                    'version': obj.get("version"),
+                    'is_active': True,
+                },
+            )
+            cl.update(obj)
+            return cl
 
 
 class Catalog(models.Model):
@@ -146,8 +248,9 @@ class Question(models.Model):
 
     def save(self, *args, **kwargs):
         super(Question, self).save(*args, **kwargs)
-        # flag all answers as revision needed, since the question changed
-        self.answers.update(revision_needed=True)
+        if kwargs.get('flag_revision', False):
+            # flag all answers as revision needed, since the question changed
+            self.answers.update(revision_needed=True)
 
     class Meta:
         order_with_respect_to = 'catalog'

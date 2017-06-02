@@ -1,0 +1,26 @@
+{% extends 'base/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block window_title %}Update Result{% endblock %}
+
+{% block content %}
+
+<h2>Update Checklist</h2>
+
+<div class="alert alert-success">
+    Checklist has been successfully updated.
+</div>
+
+{% if flagged %}
+<p>
+The following questions have been flagged for revision:
+<ul>
+{% for label in flagged %}
+    <li>{{ label }}</li>
+{% endfor %}
+</ul>
+</p>
+{% endif %}
+
+<a href="{% url 'survey:site_overview' checklist.id %}" class="btn btn-default">Goto overview</a>
+{% endblock %}

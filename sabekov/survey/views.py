@@ -3,9 +3,13 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.contrib.admin.views.decorators import staff_member_required
 from django.urls import reverse
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
+from django.views.generic.edit import FormView
+from django.views.decorators.http import require_POST
+
 
 
 from .models import *
@@ -130,3 +134,51 @@ class ReviewDetailView(PermissionRequiredMixin, DetailView):
     pk_url_kwarg = 'eval_id'
     template_name = 'survey/review.html'
     context_object_name = 'eval'
+
+
+class ImportChecklistView(PermissionRequiredMixin, FormView):
+    permission_required = 'is_staff'
+    template_name = 'survey/checklist_import.html'
+    form_class = ImportChecklistForm
+    success_url = '/thanks/' # not used
+
+    def form_valid(self, form):
+        template = loader.get_template('survey/checklist_update_control.html')
+        checklist = form.cleaned_data.get('checklist')
+        jdata = json.loads(form.cleaned_data.get('json'))
+        new, modified, deleted = checklist.list_changes(jdata)
+        context = {
+            'checklist': checklist,
+            'import_data_form': HiddenImportDataForm(form.cleaned_data),
+            'q_new': new,
+            'q_modified': modified,
+            'q_deleted': deleted,
+        }
+        return HttpResponse(template.render(context, self.request))
+
+
+@staff_member_required
+@require_POST
+def apply_import(request, checklist_id):
+    checklist = Checklist.objects.get(pk=checklist_id)
+    hid_form = HiddenImportDataForm(request.POST)
+    if not hid_form.is_valid():
+        raise ValueError("Hidden import form not valid")
+    jdata = json.loads(hid_form.cleaned_data.get('json'))
+    new, modified, deleted = checklist.list_changes(jdata)
+
+    for qdiff in modified:
+        qdiff.generate_control_form(request.POST)
+        if not qdiff.form.is_valid():
+            raise ValueError("Diff form not valid")
+        qdiff.flag_revision = qdiff.form.cleaned_data.get('flag_revision')
+    flagged = [qdiff.label for qdiff in modified if qdiff.flag_revision]
+
+    checklist.update(jdata, flag_revision=flagged)
+
+    template = loader.get_template('survey/checklist_update_result.html')
+    context = {
+        'checklist': checklist,
+        'flagged': flagged,
+    }
+    return HttpResponse(template.render(context, request))
