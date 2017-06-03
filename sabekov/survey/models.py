@@ -486,10 +486,8 @@ class AnswerForm(forms.ModelForm):
         # adjust value field type to question type
         if ans:
             if ans.question.answer_type == Question.ALTERNATIVES:
-                choices = ans.question.get_choices(empty=True)
                 self.fields['value'] = forms.ChoiceField(
-                        choices=choices,
-                        widget=forms.Select if len(choices) > 3 else forms.RadioSelect,
+                        choices=ans.question.get_choices(empty=True),
                         label='',
                 )
             elif ans.question.answer_type == Question.MULTINOM:
