@@ -457,7 +457,8 @@ class AnswerChoice(models.Model):
         """Checks if the question changed since this answer has been given."""
         if self.last_updated is None:
             return False
-        return self.last_updated < self.question.history.latest('history_date').history_date
+        return self.last_updated < self.question.history.latest('history_date').history_date \
+            and self.revision_needed
 
     def get_question_as_answered(self):
         return self.question.history.as_of(self.last_updated).pk
