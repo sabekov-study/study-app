@@ -182,15 +182,33 @@ function ajaxifySubmit() {
 			url: frm.attr('action'),
 			data: frm.serialize(),
 			success: function (data) {
-				$("#ajax-messages").html('<div class="alert alert-success">Successfully saved.</div>');
+				bootstrap_alert.success('Successfully saved.');
 			},
 			error: function(data) {
 				console.log(data)
-				$("#ajax-messages").html('<div class="alert alert-danger">Saving failed.</div>');
+				bootstrap_alert.danger('Saving failed.');
 			}
 		});
 		return false;
 	});
+}
+
+
+
+// https://stackoverflow.com/a/16604526
+bootstrap_alert = function() {}
+bootstrap_alert.danger = function(message) {
+    $('#ajax-messages').append('<div class="alert alert-block alert-danger fade in"><button type="button" class="close" data-dismiss="alert">&times;</button>'+ message +'</div>');
+    alertTimeout(10000);
+}
+bootstrap_alert.success = function(message) {
+    $('#ajax-messages').append('<div class="alert alert-block alert-success fade in"><button type="button" class="close" data-dismiss="alert">&times;</button>'+ message +'</div>');
+    alertTimeout(10000);
+}
+function alertTimeout(wait){
+    setTimeout(function(){
+        $('#ajax-messages').children('.alert:first-child').remove();
+    }, wait);
 }
 
 
