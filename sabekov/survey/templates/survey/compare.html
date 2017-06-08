@@ -1,4 +1,5 @@
 {% extends 'base/base.html' %}
+{% load static %}
 
 {% block window_title %}Summary{% endblock %}
 
@@ -16,7 +17,7 @@
  {% for label in label_list %}
   <div class="panel panel-default">
       <div class="panel-heading">{{ label.grouper }}</div>
-    <table class="table">
+      <table id="{{ label.grouper }}-table" class="table">
      <thead>
       <tr>
          <th class="col-md-6">Answer</th>
@@ -26,9 +27,9 @@
      </thead>
      <tbody>
      {% for ans in label.list|dictsort:"evaluation.tester.username" %}
-      <tr>
-          <td>{{ ans.value }}</td>
-          <td>{{ ans.evaluation.tester }}</td>
+      <tr class="answer">
+          <td class="value">{{ ans.value }}</td>
+          <td class="tester">{{ ans.evaluation.tester }}</td>
           <td>
          {% if ans.discussion_needed %}<span class="label label-warning">Discussion</span>&nbsp;{% endif %}
          {% if ans.revision_needed %}<span class="label label-info">Revision</span>&nbsp;{% endif %}
@@ -48,6 +49,7 @@
 {% endblock %}
 
 {% block scripts %}
+<script type="text/javascript" src="{% static 'survey/js/compare.js' %}"></script>
 <script>
 $(document).ready(function(){
     $('[data-toggle="popover"]').popover(); 
