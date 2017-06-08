@@ -431,7 +431,7 @@ class SortedAnswerChoiceManager(models.Manager):
         ref_list = checklist.list_expanded_labels()
         # query
         qs = super(SortedAnswerChoiceManager, self).get_queryset().filter(evaluation__checklist=checklist).filter(*args, **kwargs)
-        return sorted(qs, key=lambda ac: ref_list.index(ac.full_label))
+        return sorted(qs, key=lambda ac: ref_list.index(ac.full_label) if ac.full_label in ref_list else len(ref_list))
 
 class AnswerChoice(models.Model):
     evaluation = models.ForeignKey(SiteEvaluation, on_delete=models.CASCADE, related_name="answers")
