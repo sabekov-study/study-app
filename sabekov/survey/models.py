@@ -239,7 +239,7 @@ class Question(models.Model):
     def get_choices(self, empty=False):
         if self.answer_type in (self.ALTERNATIVES, self.MULTINOM):
             l = [ (o.name, o.name) for o in self.answer_options.all() ]
-            return [("n.n.", "-- choose --")] + l if empty else l
+            return [(AnswerChoice.NN, "-- choose --")] + l if empty else l
         else:
             raise ValueError("No choices for this answer type.")
 
@@ -373,8 +373,8 @@ class SiteEvaluation(models.Model):
 
     def estimate_progress(self):
         """Estimate the evaluation progress. Returns a values between 0 and 100."""
-        total_qs = self.answers.exclude(parent__value="n.n.")
-        return int(round(total_qs.exclude(value__in=["", "n.n."]).count() /
+        total_qs = self.answers.exclude(parent__value=AnswerChoice.NN)
+        return int(round(total_qs.exclude(value__in=["", AnswerChoice.NN]).count() /
                 total_qs.count(), 2) * 100)
 
 
@@ -434,6 +434,7 @@ class SortedAnswerChoiceManager(models.Manager):
         return sorted(qs, key=lambda ac: ref_list.index(ac.full_label) if ac.full_label in ref_list else len(ref_list))
 
 class AnswerChoice(models.Model):
+    NN = 'n.n.'
     evaluation = models.ForeignKey(SiteEvaluation, on_delete=models.CASCADE, related_name="answers")
     full_label = models.SlugField(max_length=100, db_index=True)
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name="answers")
@@ -477,18 +478,22 @@ class AnswerForm(forms.ModelForm):
         ans = kwargs.get('instance', None)
 
         # unmarshal multinom values for field initialization
+        initial = kwargs.get('initial', {})
         if ans and ans.question.answer_type == Question.MULTINOM:
-            initial = kwargs.get('initial', {})
             initial['value'] = json.loads(ans.value) if ans.value != "" else []
-            kwargs['initial'] = initial
+        elif ans and ans.question.answer_type == Question.ALTERNATIVES:
+            initial['value'] = ans.value or AnswerChoice.NN
+        kwargs['initial'] = initial
 
         super(AnswerForm, self).__init__(*args, **kwargs)
 
         # adjust value field type to question type
         if ans:
             if ans.question.answer_type == Question.ALTERNATIVES:
+                choices = ans.question.get_choices(empty=True)
                 self.fields['value'] = forms.ChoiceField(
-                        choices=ans.question.get_choices(empty=True),
+                        choices=choices,
+                        widget=forms.Select if len(choices) > 3 else forms.RadioSelect,
                         label='',
                 )
             elif ans.question.answer_type == Question.MULTINOM:
