@@ -1,9 +1,14 @@
+function getEvalForm() {
+	return document.getElementById('eval-form')
+}
+
 function idFor(label, part) {
 	return 'id_' + label + '-' + part
 }
 
 function getValueElement(label) {
-	return document.getElementById(idFor(label, 'value'))
+	var form = getEvalForm()
+	return form.elements.namedItem(label + '-value')
 }
 
 function getNegativeAnswersElement(label) {
@@ -11,21 +16,15 @@ function getNegativeAnswersElement(label) {
 }
 
 function isSubtreeInactive(label) {
-	var valueElem = getValueElement(label)
-	if (!valueElem) {
-		console.warn("No value element for " + label)
+	var element = getValueElement(label)
+	if (!element) {
+		console.error("No value element for '" + label + "'")
 		return false
 	}
-	if (valueElem.tagName != 'SELECT') {
-		console.warn("Unhandled tag type of value element for " + label + ": " + valueElem.tagName)
+	var value = element.value
+	if (!value) {
 		return false
 	}
-	var choices = valueElem.selectedOptions
-	if (choices.length != 1) {
-		console.warn("None or multiple choices made for " + label)
-		return false
-	}
-	var choice = choices[0].value
 
 	var negativeAnswersElem = getNegativeAnswersElement(label)
 	if (!negativeAnswersElem) {
@@ -33,7 +32,7 @@ function isSubtreeInactive(label) {
 		return false
 	}
 	var negativeAnswers = JSON.parse(negativeAnswersElem.value)
-	return negativeAnswers.indexOf(choice) > -1 || choice == "n.n."
+	return negativeAnswers.indexOf(value) > -1 || value == "n.n."
 }
 
 function iterateAnswers(callback) {
@@ -90,26 +89,24 @@ function handleAnswerChanged(label) {
 function installOnchangeListeners() {
 	iterateAnswers(function(answer) {
 		var label = answer.id
-		var valueElem = getValueElement(label)
-		if (!valueElem) {
-			console.warn("No value element for " + label)
-			return false
+		var elements = document.getElementsByName(label + '-value')
+		for (var i = 0; i < elements.length; i++) {
+			var element = elements[i]
+			element.setAttribute('onchange', "handleAnswerChanged('" + label + "')")
 		}
-		if (valueElem.tagName != 'SELECT') {
-			console.warn("Unhandled tag type of value element for " + label + ": " + valueElem.tagName)
-			return false
-		}
-		valueElem.setAttribute('onchange', "handleAnswerChanged('" + label + "')")
 	})
 }
 
 function isUnanswered(label) {
 	var element = getValueElement(label)
-
 	if (!element) {
-		// No specific element by that ID, see if we have multiple values, i.e.,
-		// checkboxes
+		console.error("No value element for '" + label + "'")
+		return false
+	}
+	var value = element.value
 
+	// Collections of checkboxes have to be handled separately
+	if (RadioNodeList.prototype.isPrototypeOf(element) && !value) {
 		var groupedElements = document.getElementsByName(label + '-value')
 		for (var i = 0; i < groupedElements.length; i++) {
 			var currentElement = groupedElements[i]
@@ -122,18 +119,7 @@ function isUnanswered(label) {
 		return true
 	}
 
-	if (element.tagName == 'SELECT') {
-		return element.selectedOptions[0].value == 'n.n.'
-	}
-
-	if (element.tagName == 'INPUT') {
-		if (element.type == 'text') {
-			return element.value.trim().length == 0
-		}
-	}
-
-	// If the element is unknown, exclude it from filtering
-	return true
+	return !value || !value.trim() || value == 'n.n.'
 }
 
 function isDiscussionNeeded(label) {
