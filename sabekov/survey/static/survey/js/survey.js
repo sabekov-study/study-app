@@ -132,6 +132,11 @@ function isRevisionNeeded(label) {
 	return element ? element.checked : false
 }
 
+function isDirty(label) {
+	var element = document.getElementById(idFor(label, 'dirty'))
+	return element ? element.checked : false
+}
+
 function filterIsActive(filter) {
 	var element = document.getElementById('id_filter_' + filter)
 	return element ? element.checked : false
@@ -141,6 +146,7 @@ function isFiltered(label) {
 	return (filterIsActive('1') && !isUnanswered(label))
 		|| (filterIsActive('2') && !isDiscussionNeeded(label))
 		|| (filterIsActive('3') && !isRevisionNeeded(label))
+		|| (filterIsActive('4') && !isDirty(label))
 }
 
 function applyFilter() {
