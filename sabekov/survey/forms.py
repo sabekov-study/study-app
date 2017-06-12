@@ -77,7 +77,7 @@ class HiddenImportDataForm(forms.Form):
 
 
 class UpdateControlForm(forms.Form):
-    flag_revision = forms.BooleanField(
+    flag_dirty = forms.BooleanField(
         label='',
         required=False,
     )

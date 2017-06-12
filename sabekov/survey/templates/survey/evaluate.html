@@ -38,6 +38,7 @@
       <h3 class="panel-title">{{ ans.get_full_label }}
         <a class="headerlink" href="#{{ ans.get_full_label }}" title="Permalink to this question">¶</a>
         {% if ans.is_outdated %}<span class="label label-warning">Changed</span>{% endif %}
+        {% if ans.dirty %}<span class="label label-warning">Dirty</span>{% endif %}
       </h3>
     </div>
     <div class="panel-body">
@@ -64,6 +65,11 @@
         <div class="checkbox-inline">
             <label>{{ form.revision_needed }}{{ form.revision_needed.label }}</label>
         </div>
+        {% if ans.dirty %}
+        <div class="checkbox-inline">
+            <label>{{ form.dirty }}{{ form.dirty.label }}</label>
+        </div>
+        {% endif %}
         </div>
         {{ form.note.label_tag }}
         {% render_field form.note class+="form-control" %}

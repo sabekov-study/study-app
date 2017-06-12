@@ -47,7 +47,7 @@ class QuestionDiff(object):
             data,
             prefix=self.label,
             initial = {
-                'flag_revision': any([self.text, self.type, self.choices]),
+                'flag_dirty': any([self.text, self.type, self.choices]),
             },
         )
 
@@ -102,7 +102,7 @@ class Checklist(models.Model):
 
 
     @transaction.atomic
-    def update(self, jdata, flag_revision=[]):
+    def update(self, jdata, flag_dirty=[]):
         """Update checklist from given json representation."""
         top_cats = jdata.get("steps")
         for cn in jdata.get("subcategories"):
@@ -155,9 +155,9 @@ class Checklist(models.Model):
                 q.answer_options.exclude(pk__in=ans_pks).delete()
                 # update order
                 q.set_answeroption_order(ans_pks)
-                # flag answers for revision if wanted
-                if q.label in flag_revision:
-                    q.answers.update(revision_needed=True)
+                # flag answers dirty for revision if wanted
+                if q.label in flag_dirty:
+                    q.answers.update(dirty=True)
             # delete obsolete questions
             cat.questions.exclude(pk__in=q_pks).delete()
             # update order
@@ -248,9 +248,9 @@ class Question(models.Model):
 
     def save(self, *args, **kwargs):
         super(Question, self).save(*args, **kwargs)
-        if kwargs.get('flag_revision', False):
-            # flag all answers as revision needed, since the question changed
-            self.answers.update(revision_needed=True)
+        if kwargs.get('flag_dirty', False):
+            # flag all answers as dirty, since the question changed
+            self.answers.update(dirty=True)
 
     class Meta:
         order_with_respect_to = 'catalog'
@@ -371,6 +371,9 @@ class SiteEvaluation(models.Model):
     def count_revisions(self):
         return self.answers.filter(revision_needed=True).count()
 
+    def count_dirties(self):
+        return self.answers.filter(dirty=True).count()
+
     def estimate_progress(self):
         """Estimate the evaluation progress. Returns a values between 0 and 100."""
         total_qs = self.answers.exclude(parent__value=AnswerChoice.NN)
@@ -444,8 +447,13 @@ class AnswerChoice(models.Model):
     note = models.CharField(max_length=300, blank=True)
     discussion_needed = models.BooleanField(default=False)
     revision_needed = models.BooleanField(default=False)
+    dirty = models.BooleanField(default=False)
     last_updated = models.DateTimeField(auto_now=True)
-    history = HistoricalRecords()
+    history = HistoricalRecords(
+        excluded_fields=[
+            'dirty',
+        ],
+    )
     objects = SortedAnswerChoiceManager()
 
     def get_full_label(self):
@@ -525,7 +533,7 @@ class AnswerForm(forms.ModelForm):
 
     class Meta:
         model = AnswerChoice
-        fields = ['value', 'note', 'discussion_needed', 'revision_needed']
+        fields = ['value', 'note', 'discussion_needed', 'revision_needed', 'dirty']
         widgets = {
                 'note': forms.Textarea(attrs={'rows': '5'}),
         }

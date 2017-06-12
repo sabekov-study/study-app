@@ -171,10 +171,10 @@ def apply_import(request, checklist_id):
         qdiff.generate_control_form(request.POST)
         if not qdiff.form.is_valid():
             raise ValueError("Diff form not valid")
-        qdiff.flag_revision = qdiff.form.cleaned_data.get('flag_revision')
-    flagged = [qdiff.label for qdiff in modified if qdiff.flag_revision]
+        qdiff.flag_dirty = qdiff.form.cleaned_data.get('flag_dirty')
+    flagged = [qdiff.label for qdiff in modified if qdiff.flag_dirty]
 
-    checklist.update(jdata, flag_revision=flagged)
+    checklist.update(jdata, flag_dirty=flagged)
 
     template = loader.get_template('survey/checklist_update_result.html')
     context = {

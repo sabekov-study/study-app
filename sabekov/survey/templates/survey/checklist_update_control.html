@@ -7,9 +7,9 @@
 
 <h2>Update Checklist</h2>
 
-<div class="alert alert-info">
+<div class="alert alert-warning">
     Please verify the planed changes and select those modifications
-    that should flag existing answers for a revision.<br/>
+    that should flag existing answers as dirty indicating a need for revision.<br/>
     Changes to question texts or answer choices are flagged by default.
 </div>
 
@@ -23,7 +23,7 @@
 <thead>
     <th class="col-md-3">Label</th>
     <th class="col-md-8">Change</th>
-    <th class="col-md-1">Flag for revision?</th>
+    <th class="col-md-1">Flag as dirty?</th>
 </thead>
 <tbody>
 {% for qdiff in q_modified %}

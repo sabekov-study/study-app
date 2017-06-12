@@ -2,4 +2,4 @@ django
 django-pipeline
 django-widget-tweaks
 django-crispy-forms
-django-simple-history
+django-simple-history >= 1.9.0
