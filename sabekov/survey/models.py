@@ -23,7 +23,7 @@ class QuestionDiff(object):
         self.label = question.label
         self.text = self.__diff(question.question_text, jdata.get('question'))
         self.comment = self.__diff(question.comment, jdata.get('comment'))
-        self.type = None # type diff detechtion not yet supported
+        self.type = self.__diff(question.answer_type, Question.get_type(jdata))
         self.ref = self.__diff_ref(question.reference, jdata.get('reference'))
         ans_options = jdata.get("answers") or []
         if type(ans_options) is not list:
@@ -140,7 +140,7 @@ class Checklist(models.Model):
                         'question_text': qd.get("question") or "",
                         'comment': qd.get("comment") or "",
                         'reference': self.catalogs.get(label=qd.get("reference")) if qd.get("reference") else None,
-                        'answer_type': type_mapping.get(qd.get('answer_type'), ''),
+                        'answer_type': Question.get_type(qd),
                     }
                 )
                 q_pks.append(q.pk)
@@ -258,6 +258,15 @@ class Question(models.Model):
         if kwargs.get('flag_dirty', False):
             # flag all answers as dirty, since the question changed
             self.answers.update(dirty=True)
+
+    @staticmethod
+    def get_type(jdata):
+        type_mapping = {
+            "selection": Question.ALTERNATIVES,
+            "multiselection":  Question.MULTINOM,
+            "input":  Question.INPUT,
+        }
+        return type_mapping.get(jdata.get('answer_type'), '')
 
     class Meta:
         order_with_respect_to = 'catalog'

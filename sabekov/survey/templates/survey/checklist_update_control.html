@@ -33,6 +33,8 @@
         {% include 'survey/qdiff_snippet.html' with name='Text' diff=qdiff.text %}
         {% include 'survey/qdiff_snippet.html' with name='Comment' diff=qdiff.comment %}
         {% include 'survey/qdiff_snippet.html' with name='Reference' diff=qdiff.ref %}
+        {% include 'survey/qdiff_snippet.html' with name='Options' diff=qdiff.options %}
+        {% include 'survey/qdiff_snippet.html' with name='Type' diff=qdiff.type %}
     </td>
     <td>{{ qdiff.form.as_p }}</td>
 </tr>
