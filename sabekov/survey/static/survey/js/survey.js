@@ -156,9 +156,10 @@ function applyFilter() {
 		if (isFiltered(label)) {
 			element.classList.add('filtered')
 		} else {
-			// re-activate hidden sub-questions to show changed questions
-			// marked for revision
-			if (filterIsActive('3') && isRevisionNeeded(label)) {
+			// re-activate hidden sub-questions to show flagged questions
+			if ( (filterIsActive('2') && isDiscussionNeeded(label))
+					|| (filterIsActive('3') && isRevisionNeeded(label))
+					|| (filterIsActive('4') && isDirty(label))) {
 				element.classList.remove('inactive')
 			}
 			element.classList.remove('filtered')
