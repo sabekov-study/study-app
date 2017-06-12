@@ -36,6 +36,11 @@
      <td>
        {% if evaluation %}<span class="label label-warning">Discussions <span class="badge">{{ evaluation.count_discussions }}</span></span>&nbsp;{% endif %}
        {% if evaluation %}<span class="label label-info">Revisions <span class="badge">{{ evaluation.count_revisions }}</span></span>&nbsp;{% endif %}
+        {% with dirty_count=evaluation.count_dirties %}
+             {% if dirty_count > 0 %}
+                <span class="label label-danger">Dirty <span class="badge">{{ dirty_count }}</span></span>&nbsp;&nbsp;
+             {% endif %}
+        {% endwith %}
        {% if evaluation and evaluation.finished %}<span class="label label-success">Finished</span>&nbsp;{% endif %}
     </td>
   </tr>

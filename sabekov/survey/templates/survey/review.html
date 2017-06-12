@@ -28,6 +28,7 @@
       <td>
          {% if ans.discussion_needed %}<span class="label label-warning">Discussion</span>&nbsp;{% endif %}
          {% if ans.revision_needed %}<span class="label label-info">Revision</span>&nbsp;{% endif %}
+         {% if ans.dirty %}<span class="label label-danger">Dirty</span>&nbsp;{% endif %}
          {% if ans.note %}
          <span class="label label-info" data-toggle="popover" title="Notes" data-content="{{ ans.note }}">Notes</span>
          {% endif %}
