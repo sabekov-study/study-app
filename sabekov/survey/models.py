@@ -25,7 +25,14 @@ class QuestionDiff(object):
         self.comment = self.__diff(question.comment, jdata.get('comment'))
         self.type = None # type diff detechtion not yet supported
         self.ref = self.__diff_ref(question.reference, jdata.get('reference'))
-        self.choices = None # answer diff not yet supported
+        ans_options = jdata.get("answers") or []
+        if type(ans_options) is not list:
+            # bug in json converter tool
+            ans_options = [ans_options]
+        self.options = self.__diff(
+            list(question.answer_options.values_list('name', 'negativ')),
+            [ AnswerOption.parseJson(a) for a in ans_options],
+        )
         self.generate_control_form()
 
 
@@ -39,7 +46,7 @@ class QuestionDiff(object):
             return self.__diff(o, n)
 
     def has_changed(self):
-        return any([self.text, self.comment, self.type, self.ref, self.choices])
+        return any([self.text, self.comment, self.type, self.ref, self.options])
 
     def generate_control_form(self, data=None):
         from .forms import UpdateControlForm
@@ -47,7 +54,7 @@ class QuestionDiff(object):
             data,
             prefix=self.label,
             initial = {
-                'flag_dirty': any([self.text, self.type, self.choices]),
+                'flag_dirty': any([self.text, self.type, self.options]),
             },
         )
 
@@ -145,9 +152,9 @@ class Checklist(models.Model):
                     # bug in json converter tool
                     ans_options = [ans_options]
                 for ans in ans_options:
-                    negative = (ans.startswith("_") and ans.endswith("_"))
+                    name, negative = AnswerOption.parseJson(ans)
                     ao, created = q.answer_options.update_or_create(
-                        name=ans if not negative else ans[1:-1],
+                        name=name,
                         defaults={'negativ': negative},
                     )
                     ans_pks.append(ao.pk)
@@ -426,6 +433,12 @@ class AnswerOption(models.Model):
 
     class Meta:
         order_with_respect_to = 'question'
+
+    @staticmethod
+    def parseJson(ans):
+        negative = (ans.startswith("_") and ans.endswith("_"))
+        name = ans if not negative else ans[1:-1]
+        return (name, negative)
 
 
 class SortedAnswerChoiceManager(models.Manager):
