@@ -5,8 +5,8 @@
 {% block content %}
 <div class="container">
 <nav>
-    <a href="{% url 'survey:summary-list' checklist.id %}"
-        class="btn btn-default">❮ Summary</a>
+    <a href="{% url 'survey:summary-by-user-list' checklist.id %}"
+        class="btn btn-default">❮ Summary by User</a>
 </nav>
 
 <h2>Discuss with {{ tester.username }}</h2>
