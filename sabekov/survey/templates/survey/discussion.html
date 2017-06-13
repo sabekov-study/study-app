@@ -48,7 +48,7 @@
                  {% if ans.revision_needed %}<span class="label label-info">Revision</span>&nbsp;{% endif %}
                  {% if ans.dirty %}<span class="label label-danger">Dirty</span>&nbsp;{% endif %}
               </td>
-              <td><button type="button" id="id-{{ ans.pk }}-clear" class="btn btn-success btn-xs pull-right" onclick="clearDiscussion({{ ans.pk }});"><i class="fa fa-check" aria-hidden="true"></i></button></td>
+              <td><button type="button" id="id-{{ ans.pk }}-clear" class="btn btn-success btn-xs pull-right" title="Clear discussion flag" onclick="clearDiscussion({{ ans.pk }});"><i class="fa fa-check" aria-hidden="true"></i></button></td>
           </tr>
      {% endfor %}
     </tbody>
@@ -90,7 +90,7 @@
                  {% if ans.revision_needed %}<span class="label label-info">Revision</span>&nbsp;{% endif %}
                  {% if ans.dirty %}<span class="label label-danger">Dirty</span>&nbsp;{% endif %}
               </td>
-              <td><button type="button" id="id-{{ ans.pk }}-clear" class="btn btn-success btn-xs pull-right" onclick="clearDiscussion({{ ans.pk }})"><i class="fa fa-check" aria-hidden="true"></i></button></td>
+              <td><button type="button" id="id-{{ ans.pk }}-clear" class="btn btn-success btn-xs pull-right" title="Clear discussion flag" onclick="clearDiscussion({{ ans.pk }})"><i class="fa fa-check" aria-hidden="true"></i></button></td>
           </tr>
      {% endfor %}
     </tbody>
