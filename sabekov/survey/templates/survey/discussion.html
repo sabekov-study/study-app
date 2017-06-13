@@ -1,0 +1,127 @@
+{% extends 'base/base.html' %}
+
+{% block window_title %}Discuss with {{ tester.username }}{% endblock %}
+
+{% block content %}
+<div class="container">
+<nav>
+    <a href="{% url 'survey:summary-list' checklist.id %}"
+        class="btn btn-default">❮ Summary</a>
+</nav>
+
+<h2>Discuss with {{ tester.username }}</h2>
+
+<ul class="nav nav-tabs">
+  <li class="active"><a data-toggle="tab" href="#by-label">By Label</a></li>
+  <li><a data-toggle="tab" href="#by-site">By Site</a></li>
+</ul>
+
+<div class="tab-content">
+<div id="by-label" class="tab-pane fade in active">
+{% regroup answers by full_label as answers_by_label %}
+<div class="panel-group">
+ {% for label in answers_by_label %}
+  <div class="panel panel-primary">
+      <div class="panel-heading">{{ label.grouper }}&nbsp;
+        {% with ans=label.list|last %}
+        <span data-toggle="popover" title="Question" data-content="{{ ans.question.question_text }}Comment: {{ ans.question.comment }}"><i class="fa fa-question-circle" aria-hidden="true"></i></span>
+        <span class="badge pull-right">{{ label.list|length }}</span>
+        {% endwith %}
+      </div>
+<table class="table table-striped table-condensed">
+ <thead>
+  <tr>
+     <th class="col-md-2">Site</th>
+     <th class="col-md-3">Answer</th>
+     <th class="col-md-4">Notes</th>
+     <th class="col-md-2">Flags</th>
+     <th class="col-md-1"></th>
+  </tr>
+ </thead>
+ <tbody>
+     {% for ans in label.list %}
+          <tr>
+              <td>{{ ans.evaluation.site.name }}</td>
+              <td>{{ ans.value }}</td>
+              <td>{{ ans.note }}</td>
+              <td>
+                 {% if ans.revision_needed %}<span class="label label-info">Revision</span>&nbsp;{% endif %}
+                 {% if ans.dirty %}<span class="label label-danger">Dirty</span>&nbsp;{% endif %}
+              </td>
+              <td><button type="button" id="id-{{ ans.pk }}-clear" class="btn btn-success btn-xs pull-right" onclick="clearDiscussion({{ ans.pk }});"><i class="fa fa-check" aria-hidden="true"></i></button></td>
+          </tr>
+     {% endfor %}
+    </tbody>
+    </table>
+    </div>
+ {% empty %}
+ <div class="alert alert-warning">No discussions</div>
+ {% endfor %}
+</div>
+</div>
+
+<div id="by-site" class="tab-pane fade">
+{% regroup answers|dictsort:"evaluation.site.name" by evaluation as answers_by_site %}
+<div class="panel-group">
+ {% for eval in answers_by_site %}
+  <div class="panel panel-primary">
+      <div class="panel-heading">{{ eval.grouper.site.name }}&nbsp;
+        <span class="badge pull-right">{{ eval.list|length }}</span>
+      </div>
+<table class="table table-striped table-condensed">
+ <thead>
+  <tr>
+     <th class="col-md-2">Label</th>
+     <th class="col-md-3">Answer</th>
+     <th class="col-md-4">Notes</th>
+     <th class="col-md-2">Flags</th>
+     <th class="col-md-1"></th>
+  </tr>
+ </thead>
+ <tbody>
+     {% for ans in eval.list %}
+          <tr>
+              <td>{{ ans.full_label }}
+                <span data-toggle="popover" title="Question" data-content="{{ ans.question.question_text }}Comment: {{ ans.question.comment }}"><i class="fa fa-question-circle-o" aria-hidden="true"></i></span>
+              </td>
+              <td>{{ ans.value }}</td>
+              <td>{{ ans.note }}</td>
+              <td>
+                 {% if ans.revision_needed %}<span class="label label-info">Revision</span>&nbsp;{% endif %}
+                 {% if ans.dirty %}<span class="label label-danger">Dirty</span>&nbsp;{% endif %}
+              </td>
+              <td><button type="button" id="id-{{ ans.pk }}-clear" class="btn btn-success btn-xs pull-right" onclick="clearDiscussion({{ ans.pk }})"><i class="fa fa-check" aria-hidden="true"></i></button></td>
+          </tr>
+     {% endfor %}
+    </tbody>
+    </table>
+    </div>
+ {% empty %}
+ <div class="alert alert-warning">No discussions</div>
+ {% endfor %}
+</div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+$(document).ready(function(){
+    $('[data-toggle="popover"]').popover(); 
+});
+
+function clearDiscussion(id) {
+    $.ajax({
+        url: "/survey/ajax/clear-discussion/" + id + "/",
+        success: function(data) {
+            var eid = "id-" + id + "-clear";
+            $("#" + eid).addClass("disabled");
+            return;
+        },
+        error: function(data) {
+            alert(data);
+        }
+    });
+}
+</script>
+{% endblock %}

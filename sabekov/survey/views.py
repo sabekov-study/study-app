@@ -1,14 +1,14 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.admin.views.decorators import staff_member_required
 from django.urls import reverse
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import FormView
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_GET
 
 
 
@@ -136,6 +136,28 @@ class ReviewDetailView(PermissionRequiredMixin, DetailView):
     context_object_name = 'eval'
 
 
+class DiscussionView(PermissionRequiredMixin, ListView):
+    permission_required = 'survey.can_review'
+    model = AnswerChoice
+    template_name = 'survey/discussion.html'
+    context_object_name = 'answers'
+
+    def get_queryset(self):
+        self.checklist = get_object_or_404(Checklist, pk=self.kwargs['checklist_id'])
+        self.tester = get_object_or_404(User, pk=self.kwargs['user_id'])
+        return AnswerChoice.objects.ordered_by_label(
+            self.checklist,
+            evaluation__tester=self.tester,
+            discussion_needed=True,
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super(DiscussionView, self).get_context_data(**kwargs)
+        context['checklist'] = self.checklist
+        context['tester'] = self.tester
+        return context
+
+
 class ImportChecklistView(PermissionRequiredMixin, FormView):
     permission_required = 'is_staff'
     template_name = 'survey/checklist_import.html'
@@ -182,3 +204,11 @@ def apply_import(request, checklist_id):
         'flagged': flagged,
     }
     return HttpResponse(template.render(context, request))
+
+@require_GET
+@permission_required('survey.can_review')
+def clear_discussion(request, answerchoice_id):
+    ac = get_object_or_404(AnswerChoice, pk=answerchoice_id)
+    ac.discussion_needed = False
+    ac.save()
+    return HttpResponse()

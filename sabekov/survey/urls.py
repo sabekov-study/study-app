@@ -14,7 +14,9 @@ urlpatterns = [
     url(r'^(?P<checklist_id>[0-9]+)/summary-by-user/$',
         views.SummaryByUserListView.as_view(), name='summary-by-user-list'),
     url(r'^compare/(?P<checklist_id>[0-9]+)/(?P<site_id>[0-9]+)/$', views.CompareListView.as_view(), name='compare'),
+    url(r'^discuss/(?P<checklist_id>[0-9]+)/(?P<user_id>[0-9]+)/$', views.DiscussionView.as_view(), name='discuss'),
     url(r'^review/(?P<eval_id>[0-9]+)/$', views.ReviewDetailView.as_view(), name='review'),
     url(r'^import/$', views.ImportChecklistView.as_view(), name='import-checklist'),
     url(r'^apply-import/(?P<checklist_id>[0-9]+)/$', views.apply_import, name='apply-import'),
+    url(r'^ajax/clear-discussion/(?P<answerchoice_id>[0-9]+)/$', views.clear_discussion, name='clear-discussion'),
 ]

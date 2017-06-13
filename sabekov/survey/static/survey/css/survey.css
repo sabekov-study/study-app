@@ -27,3 +27,7 @@ h4:hover > .headerlink, h5:hover > .headerlink, h6:hover > .headerlink,
 dl:hover > .headerlink, dt:hover > .headerlink {
     opacity: 1
 }
+
+.popover {
+    color: black; /* Fixes white-on-white problem of popovers in panel-primary headings */
+}

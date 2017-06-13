@@ -14,7 +14,9 @@
 <div class="panel-group">
  {% for tester in tester_list %}
   <div class="panel panel-default">
-  <div class="panel-heading">{{ tester.grouper }} <span class="badge">{{ tester.list|length }}</span></div>
+      <div class="panel-heading">{{ tester.grouper }} <span class="badge">{{ tester.list|length }}</span>
+          &nbsp;<a href="{% url 'survey:discuss' checklist.id tester.grouper.id %}" class="btn btn-default btn-sm">Discuss</a>
+      </div>
     <table class="table table-hover table-condensed">
      {% for eval in tester.list %}
        {% include "survey/summary_entry_snippet.html" with eval=eval name=eval.site.name %}
