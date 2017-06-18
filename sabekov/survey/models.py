@@ -278,6 +278,21 @@ class Site(models.Model):
     def __str__(self):
         return self.name
 
+    def calc_inter_rater_relyability(self, checklist):
+        from itertools import groupby
+        from collections import Counter
+        acs = AnswerChoice.objects.filter(
+            evaluation__site=self,
+            evaluation__checklist=checklist,
+        ).only('full_label', 'value')
+        irr_sum = 0.0
+        for fl, fli in groupby(acs, key=lambda x: x.full_label):
+            c = Counter([a.value for a in fli])
+            irr = 1.0 / len(c)
+            irr_sum += irr
+        return irr_sum / acs.count()
+
+
     class Meta:
         ordering = ['name']
 
