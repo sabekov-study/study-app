@@ -137,6 +137,10 @@ function isDirty(label) {
 	return element ? element.checked : false
 }
 
+function hasNotes(label) {
+	return $('#' + idFor(label, 'note')).val() != ""
+}
+
 function filterIsActive(filter) {
 	var element = document.getElementById('id_filter_' + filter)
 	return element ? element.checked : false
@@ -147,6 +151,7 @@ function isFiltered(label) {
 		|| (filterIsActive('2') && !isDiscussionNeeded(label))
 		|| (filterIsActive('3') && !isRevisionNeeded(label))
 		|| (filterIsActive('4') && !isDirty(label))
+		|| (filterIsActive('5') && !hasNotes(label))
 }
 
 function applyFilter() {
@@ -159,7 +164,8 @@ function applyFilter() {
 			// re-activate hidden sub-questions to show flagged questions
 			if ( (filterIsActive('2') && isDiscussionNeeded(label))
 					|| (filterIsActive('3') && isRevisionNeeded(label))
-					|| (filterIsActive('4') && isDirty(label))) {
+					|| (filterIsActive('4') && isDirty(label))
+					|| (filterIsActive('5') && hasNotes(label))) {
 				element.classList.remove('inactive')
 			}
 			element.classList.remove('filtered')

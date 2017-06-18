@@ -22,6 +22,7 @@ class AnswerFilterForm(forms.Form):
             ("discussion_needed", "discussion need"),
             ("revision_needed", "revision needed"),
             ("dirty", "dirty"),
+            ("notes", "notes"),
         ),
         widget=forms.CheckboxSelectMultiple(attrs = {
             'onchange': 'applyFilter()',
