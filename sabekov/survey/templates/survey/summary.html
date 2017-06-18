@@ -17,7 +17,7 @@
   <div class="panel panel-primary">
       <div class="panel-heading">{{ site.grouper }}
           {% if site.list|length > 1 %}
-          &nbsp;<a href="{% url 'survey:compare' checklist.id site.grouper.id %}" class="btn btn-primary btn-xs" role="button">Compare</a>
+          &nbsp;<a href="{% url 'survey:compare' checklist.id site.grouper.id %}" class="btn btn-default btn-xs" role="button">Compare</a>
           {% endif %}
         <span class="pull-right">
           {% if site.list|length > 1 %}
