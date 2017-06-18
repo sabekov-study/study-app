@@ -20,9 +20,6 @@
           &nbsp;<a href="{% url 'survey:compare' checklist.id site.grouper.id %}" class="btn btn-default btn-xs" role="button">Compare</a>
           {% endif %}
         <span class="pull-right">
-          {% if site.list|length > 1 %}
-          <span class="badge"><i class="fa fa-users" aria-hidden="true" title="Inter-rater reliability"></i> {{ site.grouper|calc_irr:checklist|floatformat:2 }}</span>
-          {% endif %}
           <span class="badge"><i class="fa fa-hashtag" aria-hidden="true"></i> {{ site.list|length }}</span>
         </span>
       </div>
