@@ -13,9 +13,12 @@
 
 <div class="panel-group">
  {% for tester in tester_list %}
-  <div class="panel panel-default">
-      <div class="panel-heading">{{ tester.grouper }} <span class="badge">{{ tester.list|length }}</span>
-          &nbsp;<a href="{% url 'survey:discuss' checklist.id tester.grouper.id %}" class="btn btn-default btn-sm">Discuss</a>
+  <div class="panel panel-primary">
+      <div class="panel-heading">{{ tester.grouper }}
+        <span class="pull-right">
+          <span class="badge"><i class="fa fa-hashtag" aria-hidden="true"></i> {{ tester.list|length }}</span>
+        </span>
+          &nbsp;<a href="{% url 'survey:discuss' checklist.id tester.grouper.id %}" class="btn btn-default btn-xs" role="button">Discuss</a>
       </div>
     <table class="table table-hover table-condensed">
      {% for eval in tester.list %}

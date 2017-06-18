@@ -1,4 +1,5 @@
 {% extends 'base/base.html' %}
+{% load survey_extras %}
 
 {% block window_title %}Summary{% endblock %}
 
@@ -13,12 +14,17 @@
 
 <div class="panel-group">
  {% for site in site_list %}
-  <div class="panel panel-default">
+  <div class="panel panel-primary">
       <div class="panel-heading">{{ site.grouper }}
-          <span class="badge">{{ site.list|length }}</span>
           {% if site.list|length > 1 %}
-          &nbsp;<a href="{% url 'survey:compare' checklist.id site.grouper.id %}" class="btn btn-default btn-sm">Compare</a>
+          &nbsp;<a href="{% url 'survey:compare' checklist.id site.grouper.id %}" class="btn btn-primary btn-xs" role="button">Compare</a>
           {% endif %}
+        <span class="pull-right">
+          {% if site.list|length > 1 %}
+          <span class="badge"><i class="fa fa-users" aria-hidden="true" title="Inter-rater reliability"></i> {{ site.grouper|calc_irr:checklist|floatformat:2 }}</span>
+          {% endif %}
+          <span class="badge"><i class="fa fa-hashtag" aria-hidden="true"></i> {{ site.list|length }}</span>
+        </span>
       </div>
     <table class="table table-hover">
      {% for eval in site.list %}
