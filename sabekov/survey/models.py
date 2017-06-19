@@ -279,6 +279,8 @@ class Site(models.Model):
         return self.name
 
     def calc_inter_rater_relyability(self, checklist):
+        """IRR is calculated as the occurance of the most common answer divided
+        by the total number of answers for each label."""
         from itertools import groupby
         from collections import Counter
         acs = AnswerChoice.objects.filter(
@@ -286,11 +288,13 @@ class Site(models.Model):
             evaluation__checklist=checklist,
         ).only('full_label', 'value')
         irr_sum = 0.0
+        ctr = 0
         for fl, fli in groupby(acs, key=lambda x: x.full_label):
             c = Counter([a.value for a in fli])
-            irr = 1.0 / len(c)
+            irr = c.most_common(1)[0][1] / sum(c.values())
             irr_sum += irr
-        return irr_sum / acs.count()
+            ctr += 1
+        return irr_sum / ctr
 
 
     class Meta:
