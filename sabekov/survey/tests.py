@@ -7,11 +7,11 @@ from .models import *
 class IRRTestCase(TestCase):
     def setUp(self):
         cl = Checklist.objects.create(name="some_checklist")
-        cat = cl.catalogs.create(
+        self.cat = cl.catalogs.create(
             label="CAT",
             is_top_level=True,
         )
-        self.q = cat.questions.create(
+        self.q = self.cat.questions.create(
             label="FOO",
             question_text="Foo?",
             answer_type=Question.INPUT,
@@ -56,3 +56,19 @@ class IRRTestCase(TestCase):
         self.e3.answers.create(question=self.q, value="B")
         irr = self.s.calc_inter_rater_relyability(self.e1.checklist)
         self.assertEqual(irr, 2/3)
+
+
+    def test_multiple_questions(self):
+        q2 = self.cat.questions.create(
+            label="BAR",
+            question_text="Bar?",
+            answer_type=Question.INPUT,
+        )
+        self.e1.answers.create(question=self.q, value="A")
+        self.e2.answers.create(question=self.q, value="B")
+        self.e3.answers.create(question=self.q, value="B")
+        self.e1.answers.create(question=q2, full_label="BAR", value="B")
+        self.e2.answers.create(question=q2, full_label="BAR", value="B")
+        self.e3.answers.create(question=q2, full_label="BAR", value="B")
+        irr = self.s.calc_inter_rater_relyability(self.e1.checklist)
+        self.assertEqual(irr, ((2/3)+1)/2)
