@@ -10,6 +10,7 @@ from crispy_forms.bootstrap import InlineCheckboxes, FormActions
 
 from simple_history.models import HistoricalRecords
 
+from datetime import date
 import json
 
 
@@ -272,6 +273,36 @@ class Question(models.Model):
         order_with_respect_to = 'catalog'
 
 
+class Listing(models.Model):
+    name = models.CharField(max_length=200, unique=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        ordering = ['name']
+
+
+class ListingIssue(models.Model):
+    listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="issues", unique_for_date='pub_date')
+    pub_date = models.DateField(default=date.today)
+
+    def __str__(self):
+        return "{} on {}".format(str(self.listing), pub_date)
+
+    class Meta:
+        ordering = ['pub_date']
+
+
+class ListingEntry(models.Model):
+    issue = models.ForeignKey(ListingIssue, on_delete=models.CASCADE, related_name="entries")
+    site = models.ForeignKey('SiteSynonym', on_delete=models.CASCADE, related_name="listing_entries")
+    rank = models.PositiveIntegerField()
+
+    class Meta:
+        unique_together = ("issue", "site")
+
+
 class Site(models.Model):
     name = models.CharField(max_length=200, unique=True)
 
@@ -307,6 +338,15 @@ class Site(models.Model):
             for l in f.readlines():
                 sn = l.strip().lower()
                 Site.objects.get_or_create(name=sn)
+
+
+class SiteSynonym(models.Model):
+    site = models.ForeignKey(Site, on_delete=models.CASCADE, related_name="synonyms")
+    name = models.CharField(max_length=200, unique=True)
+    listing_issues = models.ManyToManyField(ListingIssue, through=ListingEntry, related_name="sites")
+
+    def __str__(self):
+        return "Synonym {} for {}".format(self.name, str(self.site))
 
 
 class SiteEvaluation(models.Model):
