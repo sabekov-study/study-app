@@ -301,6 +301,7 @@ class ListingEntry(models.Model):
 
     class Meta:
         unique_together = ("issue", "site")
+        ordering = ['issue', 'rank']
 
 
 class Site(models.Model):
