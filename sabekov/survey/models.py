@@ -288,7 +288,7 @@ class ListingIssue(models.Model):
     pub_date = models.DateField(default=date.today)
 
     def __str__(self):
-        return "{} on {}".format(str(self.listing), pub_date)
+        return "{} on {}".format(str(self.listing), self.pub_date)
 
     class Meta:
         ordering = ['pub_date']
