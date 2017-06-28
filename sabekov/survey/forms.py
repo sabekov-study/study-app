@@ -14,6 +14,12 @@ class ChecklistForm(forms.Form):
         queryset=Checklist.objects.filter(is_active=True),
         empty_label=None,
     )
+    issue = forms.ModelChoiceField(
+        label="Listing issue",
+        queryset=ListingIssue.objects.all(),
+        empty_label="-- all --",
+        required=False,
+    )
 
 class AnswerFilterForm(forms.Form):
     filter = forms.ChoiceField(

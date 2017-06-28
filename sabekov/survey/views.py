@@ -21,11 +21,15 @@ def index(request, checklist_id):
         cl_form = ChecklistForm(request.POST)
         if cl_form.is_valid():
             checklist = cl_form.cleaned_data.get('checklist')
-            return HttpResponseRedirect(reverse('survey:site_overview', args=[checklist.id]))
+            issue = cl_form.cleaned_data.get('issue')
+            response = HttpResponseRedirect(reverse('survey:site_overview', args=[checklist.id]))
+            response['Location'] += '?issue={}'.format(issue.pk) if issue else ""
+            return response
 
+    issue_pk = request.GET.get("issue", None)
     checklist = Checklist.objects.get(pk=checklist_id)
     site_list = list()
-    for site in Site.objects.all():
+    for site in Site.objects.filter(synonyms__listing_issues=issue_pk) if issue_pk else Site.objects.all():
         try:
             se = site.evaluations.get(
                 checklist=checklist,
@@ -39,7 +43,10 @@ def index(request, checklist_id):
     context = {
         'checklist': Checklist.objects.get(pk=checklist_id),
         'cl_form': ChecklistForm(
-            initial={'checklist': checklist_id}
+            initial={
+                'checklist': checklist_id,
+                'issue': issue_pk,
+            },
         ),
         'site_list': site_list,
     }
