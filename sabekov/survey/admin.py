@@ -46,8 +46,23 @@ class ListingAdmin(admin.ModelAdmin):
         ListingIssueInline,
     ]
 
+class ListingEntryInline(admin.TabularInline):
+    model = ListingEntry
+
+class ListingIssueAdmin(admin.ModelAdmin):
+    inlines = [
+        ListingEntryInline,
+    ]
+
+class SiteSynonymAdmin(admin.ModelAdmin):
+    inlines = [
+        ListingEntryInline,
+    ]
+
 admin.site.register(Checklist, ChecklistAdmin)
 admin.site.register(Catalog, CatalogAdmin)
 admin.site.register(Question, QuestionAdmin)
 admin.site.register(Site, SiteAdmin)
 admin.site.register(Listing, ListingAdmin)
+admin.site.register(ListingIssue, ListingIssueAdmin)
+admin.site.register(SiteSynonym, ListingIssueAdmin)
