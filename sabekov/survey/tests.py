@@ -2,6 +2,7 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 
 from .models import *
+from .util import importer
 
 
 class IRRTestCase(TestCase):
@@ -72,3 +73,31 @@ class IRRTestCase(TestCase):
         self.e3.answers.create(question=q2, full_label="BAR", value="B")
         irr = self.s.calc_inter_rater_relyability(self.e1.checklist)
         self.assertEqual(irr, ((2/3)+1)/2)
+
+
+class SiteSynonymImportTestCase(TestCase):
+    SYNS = """example.de: example.de example.com example.net
+        uhh.de: uhh.de uni-hamburg.de"""
+
+    def setUp(self):
+        import tempfile
+        tmpf = tempfile.NamedTemporaryFile(mode="w", delete=False)
+        self.path = tmpf.name
+        with tmpf:
+            tmpf.write(self.SYNS)
+
+    def test_import(self):
+        importer.import_site_synonyms(self.path)
+        site_ex = Site.objects.get(name="example.de")
+        site_uhh = Site.objects.get(name="uhh.de")
+        self.assertEquals(Site.objects.count(), 2)
+        self.assertEquals(site_ex.synonyms.count(), 3)
+        self.assertEquals(site_uhh.synonyms.count(), 2)
+
+    def test_import_existing_sites(self):
+        site_uhh = Site.objects.create(name="uhh.de")
+        site_ex = Site.objects.create(name="example.net")
+        importer.import_site_synonyms(self.path)
+        self.assertEquals(Site.objects.count(), 2)
+        self.assertEquals(site_ex.synonyms.count(), 3)
+        self.assertEquals(site_uhh.synonyms.count(), 2)
