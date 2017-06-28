@@ -1,7 +1,7 @@
 from django.contrib import admin
 from simple_history.admin import SimpleHistoryAdmin
 
-from .models import Question, AnswerOption, Catalog, Checklist, Site
+from .models import *
 
 class AnswerOptionInline(admin.TabularInline):
     model = AnswerOption
@@ -30,7 +30,24 @@ class ChecklistAdmin(admin.ModelAdmin):
         CatalogInline,
     ]
 
+class SiteSynonymInline(admin.TabularInline):
+    model = SiteSynonym
+
+class SiteAdmin(admin.ModelAdmin):
+    inlines = [
+        SiteSynonymInline,
+    ]
+
+class ListingIssueInline(admin.TabularInline):
+    model = ListingIssue
+
+class ListingAdmin(admin.ModelAdmin):
+    inlines = [
+        ListingIssueInline,
+    ]
+
 admin.site.register(Checklist, ChecklistAdmin)
 admin.site.register(Catalog, CatalogAdmin)
 admin.site.register(Question, QuestionAdmin)
-admin.site.register(Site)
+admin.site.register(Site, SiteAdmin)
+admin.site.register(Listing, ListingAdmin)
