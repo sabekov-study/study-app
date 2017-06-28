@@ -101,3 +101,22 @@ class SiteSynonymImportTestCase(TestCase):
         self.assertEquals(Site.objects.count(), 2)
         self.assertEquals(site_ex.synonyms.count(), 3)
         self.assertEquals(site_uhh.synonyms.count(), 2)
+
+
+class SiteImportTestCase(TestCase):
+    SITES = """example.com
+uhh.de
+beispiel.de"""
+
+    def setUp(self):
+        import tempfile
+        tmpf = tempfile.NamedTemporaryFile(mode="w", delete=False)
+        self.path = tmpf.name
+        with tmpf:
+            tmpf.write(self.SITES)
+
+    def test_import(self):
+        from datetime import date
+        importer.import_sites_from_file(self.path, "DE", date.today())
+        self.assertEquals(Site.objects.count(), 3)
+        self.assertEquals(SiteSynonym.objects.count(), 3)

@@ -4,6 +4,30 @@ from survey.models import *
 
 
 @transaction.atomic
+def import_sites_from_file(path, listing, pub_date):
+    l, created = Listing.objects.get_or_create(
+        name=listing,
+    )
+    issue, created = l.issues.get_or_create(
+        pub_date = pub_date,
+    )
+    with open(path, "r") as f:
+        for rank, l in enumerate(f.readlines(), 1):
+            sn = l.strip().lower()
+            syn = None
+            try:
+                syn = SiteSynonym.objects.get(name=sn)
+            except SiteSynonym.DoesNotExist:
+                __update_synonyms([sn])
+                syn = SiteSynonym.objects.get(name=sn)
+            issue.entries.update_or_create(
+                site=syn,
+                defaults={'rank': rank},
+            )
+
+
+
+@transaction.atomic
 def import_site_synonyms(path):
     with open(path, "r") as f:
         for l in f.readlines():
