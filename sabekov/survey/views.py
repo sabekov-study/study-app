@@ -219,3 +219,23 @@ def clear_discussion(request, answerchoice_id):
     ac.discussion_needed = False
     ac.save()
     return HttpResponse()
+
+@login_required
+@require_GET
+def export(request, checklist_id):
+    import csv
+    cl = get_object_or_404(Checklist, pk=checklist_id)
+
+    acs = AnswerChoice.objects.ordered_by_label(cl,
+        evaluation__tester=request.user,
+    )
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="export.csv"'
+    writer = csv.writer(response)
+
+    for ac in acs:
+        writer.writerow([ac.evaluation.site.name, ac.full_label, ac.value])
+
+    return response
+
