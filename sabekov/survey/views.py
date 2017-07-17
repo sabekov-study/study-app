@@ -226,16 +226,17 @@ def export(request, checklist_id):
     import csv
     cl = get_object_or_404(Checklist, pk=checklist_id)
 
-    acs = AnswerChoice.objects.ordered_by_label(cl,
+    acs = AnswerChoice.objects.filter(
+        evaluation__checklist=cl,
         evaluation__tester=request.user,
-    )
+    ).values_list('evaluation__site__name', 'full_label', 'value')
 
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="export.csv"'
     writer = csv.writer(response)
 
     for ac in acs:
-        writer.writerow([ac.evaluation.site.name, ac.full_label, ac.value])
+        writer.writerow(ac)
 
     return response
 
