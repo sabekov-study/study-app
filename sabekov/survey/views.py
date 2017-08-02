@@ -229,7 +229,7 @@ def export(request, checklist_id):
     acs = AnswerChoice.objects.filter(
         evaluation__checklist=cl,
         evaluation__tester=request.user,
-    ).values_list('evaluation__site__name', 'full_label', 'value')
+    ).values_list('evaluation__site__name', 'full_label', 'value', 'note')
 
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="export.csv"'
