@@ -13,19 +13,19 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
-from django.conf.urls import include, url
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.shortcuts import redirect
+from django.urls import include, path, re_path
 from django.views.i18n import JavaScriptCatalog
 
 import survey.urls
 
 urlpatterns = [
-    url('^$', lambda request: redirect('survey:index'), name='index'),
-    url(r'^survey/', include('survey.urls')),
-    url(r'^admin/', admin.site.urls),
-    url(r'^accounts/', include('account.urls')),
-    url(r'^base/', include('base.urls')),
-    url(r'^i18n.js$', JavaScriptCatalog.as_view(), name='javascript-catalog'),
+    path('', lambda request: redirect('survey:index'), name='index'),
+    path('survey/', include('survey.urls')),
+    path('admin/', admin.site.urls),
+    path('accounts/', include('account.urls')),
+    path('base/', include('base.urls')),
+    re_path(r'^i18n.js$', JavaScriptCatalog.as_view(), name='javascript-catalog'),
 ]
