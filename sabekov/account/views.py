@@ -8,7 +8,7 @@ from django.shortcuts import render, redirect
 
 @login_required
 def my_account(request):
-    return render(request, 'account/my_account.html', {
+    return render(request, 'registration/my_account.html', {
         'active_nav': 'account'
     })
 
@@ -24,7 +24,7 @@ def change_password(request):
             return redirect('my_account')
     else:
         form = PasswordChangeForm(request.user)
-    return render(request, 'account/change_password.html', {
+    return render(request, 'registration/change_password.html', {
         'active_nav': 'account',
         'form': form
     })
