@@ -178,7 +178,7 @@ class Checklist(models.Model):
         import json
         with open(path, "r") as f:
             obj = json.load(f)
-            cl = Checklist.objects.get_or_create(
+            cl, _ = Checklist.objects.get_or_create(
                 name=obj.get("name", "imported"),
                 defaults={
                     'version': obj.get("version"),
