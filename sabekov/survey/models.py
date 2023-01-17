@@ -442,13 +442,14 @@ class SiteEvaluation(models.Model):
     def count_dirties(self):
         return self.answers.filter(dirty=True).count()
 
-    def estimate_progress(self):
+    def estimate_progress(self) -> int:
         """Estimate the evaluation progress. Returns a values between 0 and 100."""
         total_qs = self.answers.exclude(parent__value=AnswerChoice.NN)
-        return int(round(total_qs.exclude(value__in=["", AnswerChoice.NN]).count() /
-                total_qs.count(), 2) * 100)
-
-
+        total = total_qs.count()
+        if total == 0:
+            return 0
+        unanswered = total_qs.exclude(value__in=["", AnswerChoice.NN]).count()
+        return int(round(unanswered / total, 2) * 100)
 
     @transaction.atomic
     def repair_parent_references(self, force=False):
