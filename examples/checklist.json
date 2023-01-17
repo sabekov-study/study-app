@@ -1,0 +1,80 @@
+{
+   "name" : "my checklist",
+   "steps" : [
+      "HOME"
+   ],
+   "subcategories" : {
+      "ACCESS" : [
+         {
+            "answer_type" : "selection",
+            "answers" : [
+               "yes",
+               "_no_"
+            ],
+            "comment" : null,
+            "label" : "ACCESS_RESIZE",
+            "question" : "Is the content resizeable by Ctrl+Plus?",
+            "reference" : null
+         },
+         {
+            "answer_type" : "input",
+            "answers" : "int",
+            "comment" : null,
+            "label" : "ACCESS_FONTSIZE",
+            "question" : "What is the default font size?",
+            "reference" : null
+         }
+      ],
+      "HOME" : [
+         {
+            "answer_type" : "input",
+            "answers" : "int foo",
+            "comment" : null,
+            "label" : "HOME_URL",
+            "question" : "What is the home page URL?",
+            "reference" : null
+         },
+         {
+            "answer_type" : null,
+            "answers" : null,
+            "comment" : null,
+            "label" : "HOME_ACCESS",
+            "question" : null,
+            "reference" : "ACCESS"
+         },
+         {
+            "answer_type" : "selection",
+            "answers" : [
+               "yes",
+               "_no_"
+            ],
+            "comment" : null,
+            "label" : "HOME_NAV",
+            "question" : "Does the site have visible nativgation?",
+            "reference" : null
+         },
+         {
+            "answer_type" : "multiselection",
+            "answers" : [
+               "top",
+               "left",
+               "right",
+               "bottom"
+            ],
+            "comment" : "look careful",
+            "label" : "HOME_NAV_POS",
+            "question" : "Where is the main navigation?",
+            "reference" : null
+         },
+         {
+            "answer_type" : null,
+            "answers" : null,
+            "comment" : null,
+            "label" : "HOME_NAV_ACCESS",
+            "question" : null,
+            "reference" : "ACCESS"
+         }
+      ]
+   },
+   "version" : "0.1.0"
+}
